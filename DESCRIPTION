@@ -1,0 +1,16 @@
+Package: sct
+Type: Package
+Title: Helper Functions for Single Cell Transcriptomics (SCT)
+Version: 0.1.0
+Author: Paul Cantalupo
+Maintainer: <pcantalupo@gmail.com>
+Description: Helper functions for analyzing SCT data.
+License: CC0
+Encoding: UTF-8
+LazyData: true
+Imports:
+  Seurat,
+  SingleCellExperiment,
+  scater,
+  scmap
+RoxygenNote: 6.1.0
