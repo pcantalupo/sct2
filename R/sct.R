@@ -57,6 +57,7 @@ Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
 
 Self_scmapCluster = function (sce) {
   require(scmap)
+  require(SingleCellExperiment)
   sce <- selectFeatures(sce, suppress_plot = T)
 
   for (clustercol in colnames(colData(sce))) {
@@ -94,6 +95,7 @@ Self_scmapCluster = function (sce) {
 
 TwoSample_scmapCluster = function (sce1, sce2) {
   require(scmap)
+  require(SingleCellExperiment)
   sce1 <- selectFeatures(sce1, suppress_plot = T)
   sce2 <- selectFeatures(sce2, suppress_plot = T)
 
