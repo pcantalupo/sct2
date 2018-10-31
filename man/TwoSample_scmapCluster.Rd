@@ -11,6 +11,9 @@ TwoSample_scmapCluster(sce1, sce2)
 
 \item{sce2}{Same as 'sce1'. Needs to have the same number of column names in 'colData'.}
 }
+\value{
+A list containing two lists ('1vs2' and '2vs1'). Each list contains a set of scmapCluster() objects. Sankey plots for sce1 vs sce2 and Sankey plots for sce2 vs sce1. Each plot will open in a browser.
+}
 \description{
 This function performs a scmap cluster analysis on two Single Cell Experiment objects. colData columns (in the SCE object) will be compared in serial order
 }

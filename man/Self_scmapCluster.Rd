@@ -9,6 +9,9 @@ Self_scmapCluster(sce)
 \arguments{
 \item{sce}{A SingleCellExperiment object (returned object from Seurat2SingleCellExperiment) with colData populated with 1 or more columns.}
 }
+\value{
+A list of scmapCluster() objects. A self Sankey plot will be generated and opened in a browser for every column in colData()
+}
 \description{
 From a SingleCellExperiment object, this function performs a scmap cluster analysis on itself. Useful for validating clusters.
 }

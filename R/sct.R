@@ -48,7 +48,7 @@ Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
 #' @param sce A SingleCellExperiment object (returned object from Seurat2SingleCellExperiment) with colData populated with 1 or more columns.
 #' @keywords scmap
 #' @import scmap
-#' @output self Sankey plot for every column in colData
+#' @return A list of scmapCluster() objects. A self Sankey plot will be generated and opened in a browser for every column in colData()
 #' @export
 #' @examples
 #' names = c("Detox", "DNAReplication" "Quiescent")
@@ -60,11 +60,11 @@ Self_scmapCluster = function (sce) {
   require(SingleCellExperiment)
   sce <- selectFeatures(sce, suppress_plot = T)
 
-  scr = vector(0)
+  scr = list()
   for (clustercol in colnames(colData(sce))) {
     sce <- indexCluster(sce, cluster_col = clustercol)  # adds a Metadata slot called scmap_cluster_index for the 500 feature genes
 
-    scr <- scmapCluster(
+    scr[[clustercol]] <- scmapCluster(
       projection = sce,
       index_list = list(
         self = metadata(sce)$scmap_cluster_index
@@ -72,7 +72,7 @@ Self_scmapCluster = function (sce) {
     )
     plot(getSankey(
       colData(sce)[,clustercol],
-      scr$scmap_cluster_labs[,'self'],
+      scr[[clustercol]]$scmap_cluster_labs[,'self'],
       plot_height = 400)
     )
   }
@@ -86,7 +86,7 @@ Self_scmapCluster = function (sce) {
 #' @param sce2 Same as 'sce1'. Needs to have the same number of column names in 'colData'.
 #' @keywords scmap
 #' @import scmap
-#' @output Sankey plots for sce1 vs sce2 and Sankey plots for sce2 vs sce1
+#' @return A list containing two lists ('1vs2' and '2vs1'). Each list contains a set of scmapCluster() objects. Sankey plots for sce1 vs sce2 and Sankey plots for sce2 vs sce1. Each plot will open in a browser.
 #' @export
 #' @examples
 #' names1 = c("Detox", "DNAReplication" "Quiescent")
@@ -101,10 +101,11 @@ TwoSample_scmapCluster = function (sce1, sce2) {
   sce1 <- selectFeatures(sce1, suppress_plot = T)
   sce2 <- selectFeatures(sce2, suppress_plot = T)
 
+  scr = list()
   # sce1 vs sce2
   for (clustercol in colnames(colData(sce1))) {
     sce2 <- indexCluster(sce2, cluster_col = clustercol)  # adds a Metadata slot called scmap_cluster_index for the 500 feature genes
-    scr <- scmapCluster(
+    scr[['1vs2']][[clustercol]] <- scmapCluster(
       projection = sce1,
       index_list = list(
         sce2 = metadata(sce2)$scmap_cluster_index
@@ -112,7 +113,7 @@ TwoSample_scmapCluster = function (sce1, sce2) {
     )
     plot(getSankey(
       colData(sce1)[,clustercol],
-      scr$scmap_cluster_labs[,'sce2'],
+      scr[['1vs2']][[clustercol]]$scmap_cluster_labs[,'sce2'],
       plot_height = 400)
     )
   }
@@ -120,7 +121,7 @@ TwoSample_scmapCluster = function (sce1, sce2) {
   # sce2 vs sce1
   for (clustercol in colnames(colData(sce2))) {
     sce1 <- indexCluster(sce1, cluster_col = clustercol)  # adds a Metadata slot called scmap_cluster_index for the 500 feature genes
-    scr <- scmapCluster(
+    scr[['2vs1']][[clustercol]] <- scmapCluster(
       projection = sce2,
       index_list = list(
         sce1 = metadata(sce1)$scmap_cluster_index
@@ -128,9 +129,10 @@ TwoSample_scmapCluster = function (sce1, sce2) {
     )
     plot(getSankey(
       colData(sce2)[,clustercol],
-      scr$scmap_cluster_labs[,'sce1'],
+      scr[['2vs1']][[clustercol]]$scmap_cluster_labs[,'sce1'],
       plot_height = 400)
     )
   }
+  return(scr)
 }
 
