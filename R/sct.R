@@ -60,6 +60,7 @@ Self_scmapCluster = function (sce) {
   require(SingleCellExperiment)
   sce <- selectFeatures(sce, suppress_plot = T)
 
+  scr = vector(0)
   for (clustercol in colnames(colData(sce))) {
     sce <- indexCluster(sce, cluster_col = clustercol)  # adds a Metadata slot called scmap_cluster_index for the 500 feature genes
 
@@ -75,6 +76,7 @@ Self_scmapCluster = function (sce) {
       plot_height = 400)
     )
   }
+  return(scr)
 }
 
 #' TwoSample_scmapCluster
