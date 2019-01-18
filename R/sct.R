@@ -151,7 +151,7 @@ TwoSample_scmapCluster = function (sce1, sce2) {
 addBKVFracExpression_to_Seurat = function(seurat) {
   require(Seurat)
   rawdata.filt = seurat@raw.data[,seurat@cell.names]  # get raw data for the filtered cells
-  bkv.data = data.frame("Total_mRNA" = colSums(rawdata.filt))
+  bkv.data = data.frame("Total_mRNA" = colSums(as.matrix(rawdata.filt)))
   bkv.genes=c("VP1", "LTAg")
   bkv.data = cbind(bkv.data, as.data.frame(t(as.matrix(rawdata.filt[bkv.genes, ]))))
   bkv.data$BKV = rowSums(bkv.data[,bkv.genes])
