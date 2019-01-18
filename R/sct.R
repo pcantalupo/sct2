@@ -185,12 +185,23 @@ addUpperLowerBound_to_Seurat = function(seurat, pheno.use = "Total_mRNA") {
   upper_bound = 10^(m + 2*s)
   lower_bound = 10^(m - 2*s)
   
+  # update 'local' attributes
+  attrlist = attributes(seurat)$local
+  if (is.null(attrlist)) {
+    attrlist = list()
+  }
+  attrlist[['filter.pheno.use']] = pheno.use
+  attrlist[['filter.upper.bound']] = upper_bound
+  attrlist[['filter.lower.bound']] = lower_bound
+  attributes(seurat)$local = attrlist
+
   filter = data.frame("Filter_high_mRNA" = seurat@meta.data[,pheno.use] >= upper_bound,
                       "Filter_low_mRNA" = seurat@meta.data[,pheno.use] <= lower_bound)
   rownames(filter) = rownames(seurat@meta.data)
   head(filter)
   filter$Filter_ok = (filter$Filter_high_mRNA == F & filter$Filter_low_mRNA == F)
   seurat = AddMetaData(seurat, metadata = filter)
+  
   return(seurat)
 }
 
