@@ -3,6 +3,8 @@
 export(Self_scmapCluster)
 export(Seurat2SingleCellExperiment)
 export(TwoSample_scmapCluster)
+export(addBKVFracExpression_to_Seurat)
+export(addUpperLowerBound_to_Seurat)
 import(Seurat)
 import(SingleCellExperiment)
 import(scater)

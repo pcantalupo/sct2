@@ -136,3 +136,61 @@ TwoSample_scmapCluster = function (sce1, sce2) {
   return(scr)
 }
 
+
+#' addBKVFracExpression_to_Seurat
+#'
+#' This function adds seven columns to slot @meta.data of a Seurat object. They are 1) Total_mRNA, 2) counts_VP1, 3) counts_LTAg, 4) counts_BKV, 5) frac_VP1, 6) frac_LTAg, and 7) frac_BKV. 'Total_mRNA' is the sum of the raw UMI counts in each cell. The 'counts' are sum of raw counts for VP1 or LTAg in each cell. 'Frac' is the fraction of VP1 (or LTAg, BKV) counts in each cell using 'Total_mRNA'.
+#' @param seurat A Seurat object
+#' @keywords Seurat
+#' @import Seurat
+#' @return A Seurat object with 7 new columns in @meta.data
+#' @export
+#' @examples
+#' seurat = addBKVFracExpression_to_Seurat(seurat)
+
+addBKVFracExpression_to_Seurat = function(seurat) {
+  require(Seurat)
+  rawdata.filt = seurat@raw.data[,seurat@cell.names]  # get raw data for the filtered cells
+  bkv.data = data.frame("Total_mRNA" = colSums(rawdata.filt))
+  bkv.genes=c("VP1", "LTAg")
+  bkv.data = cbind(bkv.data, as.data.frame(t(as.matrix(rawdata.filt[bkv.genes, ]))))
+  bkv.data$BKV = rowSums(bkv.data[,bkv.genes])
+  colnames(bkv.data) = c("Total_mRNA", "counts_VP1", "counts_LTAg", "counts_BKV")
+  bkv.data$frac_VP1 = bkv.data$counts_VP1/bkv.data$Total_mRNA
+  bkv.data$frac_LTAg = bkv.data$counts_LTAg/bkv.data$Total_mRNA
+  bkv.data$frac_BKV = bkv.data$counts_BKV/bkv.data$Total_mRNA
+  seurat = AddMetaData(seurat, metadata = bkv.data)
+  return(seurat)
+}
+
+#' addUpperLowerBound_to_Seurat
+#'
+#' This function adds three columns to slot @meta.data of a Seurat object. They are 1) Filter_high_mRNA, 2) Filter_low_mRNA, and 3) Filter_ok and all three are logical (T or F) vectors. Function uses same calculation as Monocle documentation to identify cells with significantly low and high Total_mRNA counts.
+#' 
+#' From Monocle documentation: removed the cells with very low mRNA recovery or far more mRNA that the typical cell. Often, doublets or triplets have roughly twice the mRNA recovered as true single cells, so the latter filter is another means of excluding all but single cells from the analysis. Such filtering is handy if your protocol doesn't allow directly visualization of cell after they've been captured. 
+#' @param seurat A Seurat object
+#' @param pheno.use The @meta.data column name to use (default = 'Total_mRNA')
+#' @keywords Seurat
+#' @import Seurat
+#' @return A Seurat object with 3 new columns in @meta.data
+#' @export
+#' @examples
+#' seurat = addUpperLowerBound_to_Seurat(seurat)
+#' seurat = addUpperLowerBound_to_Seurat(seurat, pheno.use = 'nUMI')
+
+addUpperLowerBound_to_Seurat = function(seurat, pheno.use = "Total_mRNA") {
+  require(Seurat)
+  m = mean(log10(seurat@meta.data[,pheno.use]))
+  s = sd(log10(seurat@meta.data[,pheno.use]))
+  upper_bound = 10^(m + 2*s)
+  lower_bound = 10^(m - 2*s)
+  
+  filter = data.frame("Filter_high_mRNA" = seurat@meta.data[,pheno.use] >= upper_bound,
+                      "Filter_low_mRNA" = seurat@meta.data[,pheno.use] <= lower_bound)
+  rownames(filter) = rownames(seurat@meta.data)
+  head(filter)
+  filter$Filter_ok = (filter$Filter_high_mRNA == F & filter$Filter_low_mRNA == F)
+  seurat = AddMetaData(seurat, metadata = filter)
+  return(seurat)
+}
+
