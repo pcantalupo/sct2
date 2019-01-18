@@ -205,3 +205,26 @@ addUpperLowerBound_to_Seurat = function(seurat, pheno.use = "Total_mRNA") {
   return(seurat)
 }
 
+
+#' densityPlot_Seurat
+#'
+#' Outputs a Density plot for all cells. The data used will be the same metadata column name used in the addUpperLowerBound_to_Seurat() function call. Draws vertical lines to show the lower and upper bound cutoff.
+#' @param seurat A Seurat object
+#' @keywords Seurat
+#' @import Seurat
+#' @return Nothing
+#' @export
+#' @examples
+#' densityPlot_Seurat(seurat)
+
+densityPlot_Seurat = function(seurat) {
+  require(Seurat)
+  pheno.use = attributes(seurat)$local[['filter.pheno.use']]
+  ub = attributes(seurat)$local[['filter.upper.bound']]
+  lb = attributes(seurat)$local[['filter.lower.bound']]
+  
+  d = density(seurat@meta.data[,pheno.use])
+  plot(d, main = pheno.use)
+  abline(v = lb, col = 4)
+  abline(v = ub, col = 2)
+}
