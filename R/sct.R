@@ -152,8 +152,19 @@ addBKVFracExpression_to_Seurat = function(seurat) {
   require(Seurat)
   rawdata.filt = seurat@raw.data[,seurat@cell.names]  # get raw data for the filtered cells
   bkv.data = data.frame("Total_mRNA" = colSums(as.matrix(rawdata.filt)))
-  bkv.genes=c("VP1", "LTAg")
-  bkv.data = cbind(bkv.data, as.data.frame(t(as.matrix(rawdata.filt[bkv.genes, ]))))
+
+  bkv.genes=c("VP1", "LTAg")  
+  # create data.frame of all zeros for default gene expression
+  tmp = data.frame(matrix(data = 0, ncol = length(bkv.genes), nrow = nrow(bkv.data)))
+  colnames(tmp) = bkv.genes
+  # fill data.frame with gene expression values
+  for (gene in bkv.genes) {
+    if (gene %in% rownames(rawdata.filt)) {  # check if bkv gene is found
+      tmp[,gene] = rawdata.filt[gene, ]
+    }
+  }
+
+  bkv.data = cbind(bkv.data, tmp)
   bkv.data$BKV = rowSums(bkv.data[,bkv.genes])
   colnames(bkv.data) = c("Total_mRNA", "counts_VP1", "counts_LTAg", "counts_BKV")
   bkv.data$frac_VP1 = bkv.data$counts_VP1/bkv.data$Total_mRNA
