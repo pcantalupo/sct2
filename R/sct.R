@@ -239,3 +239,104 @@ densityPlot_Seurat = function(seurat) {
   abline(v = lb, col = 4)
   abline(v = ub, col = 2)
 }
+
+#' output_process_heatmaps
+#'
+#' Wrapper around process_heatmap() that outputs all heatmaps to a PDF.
+#' @param seurat_align A Seurat alignment object
+#' @param markers Marker table from Seurat 
+#' @param pdffile PDF filename to save results
+#' @keywords Seurat processheatmaps heatmap
+#' @import gridExtra
+#' @return Nothing
+#' @export
+#' @examples
+#' output_process_heatmaps(aligned, markers, "processheatmaps.alignment.pdf")
+
+output_process_heatmaps = function (seurat_align, markers, pdffile, ...) {
+  # Create heatmaps for each Process in marker and marker.conserved tables
+  #   markers
+  require(gridExtra)
+  while (!is.null(dev.list()))  dev.off()
+  pdf(pdffile)
+  processes = names(table(markers$Process))[!grepl(";", names(table(markers$Process)))]
+  for (process in processes) {
+    print (process)
+    p = process_heatmap(seurat_align, markers = markers, process = process, ...)
+    if (!is.null(p)) {
+      grid.arrange(grobs = p[c(1:2)], ncol=2, top=process)
+    }
+  }
+  dev.off()
+}
+
+
+#' process_heatmap
+#'
+#' Builds an unclustered and a clustered scaled heatmap for genes in a Process from Marker tables.
+#' @param object A Seurat object
+#' @param markers Marker table from Seurat 
+#' @param process Process name (from gene annotations)
+#' @param fontsizeRow Font size of row labels in Pheatmap
+#' @keywords Seurat pheatmap
+#' @import pheatmap RColorBrewer
+#' @return List of 3 objects: 2 pheatmaps (unclustered and clustered) and scaled data
+#' @export
+#' @examples
+#' process_heatmaps(seurat, markers, process = process, ...)
+
+process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow = 4, ...) {
+  genes = markers %>% filter(Process == process) %>% select(gene) %>% unlist(use.names = F) %>% unique()
+  if (length(genes) < 2) {
+    return (NULL)
+  }
+  
+  expr = AverageExpression(object, genes.use = genes)
+  # scale(expr)  # don't want this since it scales and centers rows and columns
+  
+  require(pheatmap)
+  require(RColorBrewer)
+  if (is.null(colors)) {
+    #colors = colorRampPalette(c("black","skyblue2","gold"))(100)
+    colors = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100)  # default
+  }
+  plot1 = pheatmap(expr, color = colors, cluster_cols = F, cluster_rows=F, scale = "row", main='Unclustered', silent=T, fontsize_row=fontsizeRow, ...)  #  built in z-score calculation in pheatmap ('scale = row')
+  plot2 = pheatmap(expr, color = colors,scale = "row", main="Clustered", silent=T, fontsize_row=fontsizeRow, ...)
+
+  # you can't extract clustering data from Pheatmap so need to do it manually
+  # https://stackoverflow.com/questions/32784646/can-you-extract-the-data-matrix-from-pheatmap-in-r
+  expr2 = t(scale(t(expr)))
+  rowclust = hclust(dist(expr2))
+  reordered = expr2[rowclust$order,]
+  colclust = hclust(dist(t(expr2)))
+  reordered = reordered[,colclust$order]
+  reordered = tbl_df(reordered) %>% mutate(process = process, gene = rownames(reordered)) %>% select(process, gene, everything())
+  
+  toReturn = list(plot1[[4]], plot2[[4]], reordered)  # https://stackoverflow.com/questions/39590849/using-a-pheatmap-in-arrangegrob  (you need slot 4 !! )
+  return(toReturn)
+}
+
+
+# Returns list of 2 pheatmaps (unclustered and clustered)
+process_heatmap_old = function (object, markers, process, colors = NULL, fontsizeRow = 4, ...) {
+  genes = markers %>% filter(Process == process) %>% select(gene) %>% unlist(use.names = F) %>% unique()
+  if (length(genes) < 2) {
+    return (NULL)
+  }
+  
+  expr = AverageExpression(object, genes.use = genes)
+  # scale(expr)  # don't want this since it scales and centers rows and columns
+  
+  require(pheatmap)
+  require(RColorBrewer)
+  if (is.null(colors)) {
+    #colors = colorRampPalette(c("black","skyblue2","gold"))(100)
+    colors = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100)  # default
+  }
+  plot1 = pheatmap(expr, color = colors, cluster_cols = F, cluster_rows=F, scale = "row", main='Unclustered', silent=T, fontsize_row=fontsizeRow, ...)  #  built in z-score calculation in pheatmap ('scale = row')
+  plot2 = pheatmap(expr, color = colors,scale = "row", main="Clustered", silent=T, fontsize_row=fontsizeRow, ...)
+  
+  toReturn = list(plot1[[4]], plot2[[4]])  # https://stackoverflow.com/questions/39590849/using-a-pheatmap-in-arrangegrob  (you need slot 4 !! )
+  return(toReturn)
+}
+
