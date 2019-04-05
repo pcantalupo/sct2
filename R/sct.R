@@ -279,14 +279,17 @@ output_process_heatmaps = function (seurat_align, markers, pdffile, ...) {
 #' @param process Process name (from gene annotations)
 #' @param fontsizeRow Font size of row labels in Pheatmap
 #' @keywords Seurat pheatmap
-#' @import pheatmap RColorBrewer
+#' @import Seurat dplyr pheatmap RColorBrewer
 #' @return List of 3 objects: 2 pheatmaps (unclustered and clustered) and scaled data
 #' @export
 #' @examples
 #' process_heatmaps(seurat, markers, process = process, ...)
 
 process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow = 4, ...) {
-  genes = markers %>% filter(Process == process) %>% select(gene) %>% unlist(use.names = F) %>% unique()
+  require(dplyr)
+  require(Seurat)
+  
+  genes = markers %>% dplyr::filter(Process == process) %>% select(gene) %>% unlist(use.names = F) %>% unique()
   if (length(genes) < 2) {
     return (NULL)
   }
@@ -310,7 +313,7 @@ process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow
   reordered = expr2[rowclust$order,]
   colclust = hclust(dist(t(expr2)))
   reordered = reordered[,colclust$order]
-  reordered = tbl_df(reordered) %>% mutate(process = process, gene = rownames(reordered)) %>% select(process, gene, everything())
+  reordered = tbl_df(reordered) %>% dplyr::mutate(process = process, gene = rownames(reordered)) %>% select(process, gene, everything())
   
   toReturn = list(plot1[[4]], plot2[[4]], reordered)  # https://stackoverflow.com/questions/39590849/using-a-pheatmap-in-arrangegrob  (you need slot 4 !! )
   return(toReturn)
