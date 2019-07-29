@@ -289,7 +289,7 @@ process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow
   require(dplyr)
   require(Seurat)
   
-  genes = markers %>% dplyr::filter(Process == process) %>% select(gene) %>% unlist(use.names = F) %>% unique()
+  genes = markers %>% dplyr::filter(Process == process, !is.na(gene)) %>% select(gene) %>% unlist(use.names = F) %>% unique()
   if (length(genes) < 2) {
     return (NULL)
   }
