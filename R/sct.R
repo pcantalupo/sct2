@@ -293,10 +293,27 @@ process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow
   if (length(genes) < 2) {
     return (NULL)
   }
-  
+
+  message("Missing genes")
+  index_gene_found = genes %in% rownames(object@data)
+  message(paste0(genes[!index_gene_found], collapse=", "))
+  message()
+  genes = genes[index_gene_found]
+
+  message("Getting average expression for each gene")
   expr = AverageExpression(object, genes.use = genes)
   # scale(expr)  # don't want this since it scales and centers rows and columns
+  message()
+
+  message("Genes not expressed in all groups or single cells")
+  rowsumzero.index = rowSums(expr) == 0
+  zeroexpr.genes = rownames(expr[rowsumzero.index,])
+  message(paste0(zeroexpr.genes, collapse=", "))
+  expr = expr[!rowsumzero.index,]  # remove genes with rowSum expression == 0
+  message()
   
+  message("Genes use: ", paste0(rownames(expr), collapse=", "))
+
   require(pheatmap)
   require(RColorBrewer)
   if (is.null(colors)) {
