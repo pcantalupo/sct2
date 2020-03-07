@@ -207,7 +207,7 @@ addBKVExprGroups_to_Seurat = function(seurat) {
   c = as.character(cut(seurat@meta.data$frac_LTAg, breaks=c(0, 0.0005, 0.002, 0.1)))
   c[is.na(c)] = "0%"
   c = factor(recode(c, "(0,0.0005]" = "<=0.05%", "(0.0005,0.002]" = "<=0.2%", "(0.002,0.1]" = "<=10%"), levels = LTAg_groups)
-  c2 = factor(paste0(c, "_", seurat@meta.data$genotype))#, levels=paste0(LTAg_groups, "_LT"))
+  c2 = factor(paste0(c, "_", sub("BKVm5", "LT", seurat@meta.data$genotype)))#, levels=paste0(LTAg_groups, "_LT"))
   seurat@meta.data$LTAg_group = c
   seurat@meta.data$LTAg_group_genotype = c2
 
