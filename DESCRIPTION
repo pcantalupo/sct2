@@ -12,5 +12,8 @@ Imports:
   Seurat,
   SingleCellExperiment,
   scater,
-  scmap
+  scmap,
+  pheatmap,
+  RColorBrewer,
+  gridExtra
 RoxygenNote: 6.1.1

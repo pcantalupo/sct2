@@ -51,7 +51,7 @@ Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
 #' @return A list of scmapCluster() objects. A self Sankey plot will be generated and opened in a browser for every column in colData()
 #' @export
 #' @examples
-#' names = c("Detox", "DNAReplication" "Quiescent")
+#' names = c("Detox", "DNAReplication", "Quiescent")
 #' sce = Seurat2SingleCellExperiment(seurat, names) # 'seurat' is created through use of Seurat package
 #' Self_scmapCluster(sce)
 
@@ -173,6 +173,50 @@ addBKVFracExpression_to_Seurat = function(seurat) {
   seurat = AddMetaData(seurat, metadata = bkv.data)
   return(seurat)
 }
+
+#' addBKVExprGroups_to_Seurat
+#'
+#' This function adds 4 columns to slot @meta.data of a Seurat object. They are 1) VP1_group, 2) VP1_group_genotype, 3) LTAg_group, and 4) LTAg_group_genotype.
+#' @param seurat A Seurat object
+#' @keywords Seurat
+#' @import Seurat
+#' @return A Seurat object with 4 new columns in @meta.data
+#' @export
+#' @examples
+#' seurat = addBKVExprGroups_to_Seurat(seurat)
+addBKVExprGroups_to_Seurat = function(seurat) {
+  require(Seurat)
+  require(dplyr)
+
+  # Add VP1 group info to Seurat
+  message("Adding VP1 group metadata")
+  VP1_groups = c("0%", "<=1%", "<=10%", "<=100%")
+  c = as.character(cut(seurat@meta.data$frac_VP1, breaks=c(0, 0.01, 0.1, 1)))
+  c[is.na(c)] = "0%"
+  c = factor(recode(c, "(0,0.01]" = "<=1%", "(0.01,0.1]" = "<=10%", "(0.1,1]" = "<=100%"), levels = VP1_groups)
+  c2 = factor(paste0(c, "_", seurat@meta.data$genotype), levels=paste0(VP1_groups, "_BKVm5"))
+  seurat@meta.data$VP1_group = c
+  seurat@meta.data$VP1_group_genotype = c2
+
+  # table(seurat@meta.data$VP1_group, useNA = "always")
+  # table(seurat@meta.data$VP1_group_genotype, useNA = "always")
+  
+  # Add LTAg group info to Seurat (max 0%, 0.05% 1:2000, 0.2% 1:500, 10% 1:10)
+  message("Adding LTAg group metadata")
+  LTAg_groups = c("0%", "<=0.05%", "<=0.2%", "<=10%")
+  c = as.character(cut(seurat@meta.data$frac_LTAg, breaks=c(0, 0.0005, 0.002, 0.1)))
+  c[is.na(c)] = "0%"
+  c = factor(recode(c, "(0,0.0005]" = "<=0.05%", "(0.0005,0.002]" = "<=0.2%", "(0.002,0.1]" = "<=10%"), levels = LTAg_groups)
+  c2 = factor(paste0(c, "_", seurat@meta.data$genotype), levels=paste0(LTAg_groups, "_LT"))
+  seurat@meta.data$LTAg_group = c
+  seurat@meta.data$LTAg_group_genotype = c2
+
+  # table(seurat@meta.data$LTAg_group, useNA = "always")
+  # table(seurat@meta.data$LTAg_group_genotype, useNA = "always")
+  
+  return(seurat)
+}
+
 
 #' addUpperLowerBound_to_Seurat
 #'
