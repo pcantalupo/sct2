@@ -16,4 +16,4 @@ Imports:
   pheatmap,
   RColorBrewer,
   gridExtra
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2

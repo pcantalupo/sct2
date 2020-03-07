@@ -4,8 +4,7 @@
 \alias{process_heatmap}
 \title{process_heatmap}
 \usage{
-process_heatmap(object, markers, process, colors = NULL,
-  fontsizeRow = 4, ...)
+process_heatmap(object, markers, process, colors = NULL, fontsizeRow = 4, ...)
 }
 \arguments{
 \item{object}{A Seurat object}
