@@ -174,6 +174,35 @@ addBKVFracExpression_to_Seurat = function(seurat) {
   return(seurat)
 }
 
+
+
+#' relevel_groupgenotype_in_Seurat
+#' 
+#' This function relevels the group_genotype meta_data field so that Mock comes before 'bkvname' and second, in order of the 'groups'.
+#' @param seurat A Seurat object
+#' @param name The meta.data field that needs releveling
+#' @param groups i.e. c("0%", "1%", "10%", "100%")
+#' @param bkvname either of c("BKVm5", "LT")
+#' @keywords Seurat
+#' @import Seurat
+#' @return A Seurat object with releveled 'name' field in @meta.data
+#' @export
+#' @examples
+#' name = "VP1_group_genotype
+#' g = c("0%", "1%", "10%", "100%")
+#' bkvname = "BKVm5"
+#' seurat = relevel_groupgenotype_in_Seurat(seurat)
+relevel_groupgenotype_in_Seurat = function (seurat, name, groups, bkvname) {
+  if (missing(seurat) || missing(name) || missing(groups) || missing(bkvname)) {
+    stop("Must supply seurat, name, groups, and bkvname to 'myrelevel'")
+  }
+  v = seurat@meta.data[,name]
+  mylevels = c(paste0(groups, "_Mock"), paste0(groups, paste0("_", bkvname)))
+  mymatch = match(mylevels, levels(v), nomatch = 0)
+  seurat@meta.data[,name] = factor(v, levels=levels(v)[mymatch])
+  seurat
+}
+
 #' addBKVExprGroups_to_Seurat
 #'
 #' This function adds 4 columns to slot @meta.data of a Seurat object. They are 1) VP1_group, 2) VP1_group_genotype, 3) LTAg_group, and 4) LTAg_group_genotype.
@@ -197,6 +226,7 @@ addBKVExprGroups_to_Seurat = function(seurat) {
   c2 = factor(paste0(c, "_", seurat@meta.data$genotype))#, levels=paste0(VP1_groups, "_BKVm5"))
   seurat@meta.data$VP1_group = c
   seurat@meta.data$VP1_group_genotype = c2
+  seurat = relevel_groupgenotype_in_Seurat(seurat, name = "VP1_group_genotype", groups = VP1_groups, bkvname = "BKVm5")
 
   # table(seurat@meta.data$VP1_group, useNA = "always")
   # table(seurat@meta.data$VP1_group_genotype, useNA = "always")
@@ -210,7 +240,8 @@ addBKVExprGroups_to_Seurat = function(seurat) {
   c2 = factor(paste0(c, "_", sub("BKVm5", "LT", seurat@meta.data$genotype)))#, levels=paste0(LTAg_groups, "_LT"))
   seurat@meta.data$LTAg_group = c
   seurat@meta.data$LTAg_group_genotype = c2
-
+  seurat = relevel_groupgenotype_in_Seurat(seurat, name = "LTAg_group_genotype", groups = LTAg_groups, bkvname = "LT")
+  
   # table(seurat@meta.data$LTAg_group, useNA = "always")
   # table(seurat@meta.data$LTAg_group_genotype, useNA = "always")
   
