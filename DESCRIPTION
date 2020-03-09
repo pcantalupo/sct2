@@ -15,5 +15,6 @@ Imports:
   scmap,
   pheatmap,
   RColorBrewer,
-  gridExtra
+  gridExtra,
+  dplyr
 RoxygenNote: 7.0.2
