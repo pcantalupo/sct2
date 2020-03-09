@@ -16,8 +16,10 @@ A list of scmapCluster() objects. A self Sankey plot will be generated and opene
 From a SingleCellExperiment object, this function performs a scmap cluster analysis on itself. Useful for validating clusters.
 }
 \examples{
+\dontrun{
 names = c("Detox", "DNAReplication", "Quiescent")
 sce = Seurat2SingleCellExperiment(seurat, names) # 'seurat' is created through use of Seurat package
 Self_scmapCluster(sce)
+}
 }
 \keyword{scmap}

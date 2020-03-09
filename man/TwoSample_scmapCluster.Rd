@@ -18,7 +18,7 @@ A list containing two lists ('1vs2' and '2vs1'). Each list contains a set of scm
 This function performs a scmap cluster analysis on two Single Cell Experiment objects. colData columns (in the SCE object) will be compared in serial order
 }
 \examples{
-names1 = c("Detox", "DNAReplication" "Quiescent")
+names1 = c("Detox", "DNAReplication", "Quiescent")
 names2 = c("Cellcycle", "Apoptosis" "Quiescent")
 sce1 = Seurat2SingleCellExperiment(seurat1, names1) # 'seurat1' is created through use of Seurat package
 sce2 = Seurat2SingleCellExperiment(seurat2, names2)
