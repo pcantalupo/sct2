@@ -187,11 +187,7 @@ addBKVFracExpression_to_Seurat = function(seurat) {
 #' @import Seurat
 #' @return A Seurat object with releveled 'name' field in @meta.data
 #' @export
-#' @examples
-#' name = "VP1_group_genotype
-#' g = c("0%", "1%", "10%", "100%")
-#' bkvname = "BKVm5"
-#' seurat = relevel_groupgenotype_in_Seurat(seurat)
+
 relevel_groupgenotype_in_Seurat = function (seurat, name, groups, bkvname) {
   if (missing(seurat) || missing(name) || missing(groups) || missing(bkvname)) {
     stop("Must supply seurat, name, groups, and bkvname to 'myrelevel'")
