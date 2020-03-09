@@ -177,19 +177,11 @@ addBKVFracExpression_to_Seurat = function(seurat) {
 }
 
 
-
-#' relevel_groupgenotype_in_Seurat
-#' 
-#' This function relevels the group_genotype meta_data field so that Mock comes before 'bkvname' and second, in order of the 'groups'.
-#' @param seurat A Seurat object
-#' @param name The meta.data field that needs releveling
-#' @param groups i.e. c("0%", "1%", "10%", "100%")
-#' @param bkvname either of c("BKVm5", "LT")
-#' @keywords Seurat
-#' @import Seurat
-#' @return A Seurat object with releveled 'name' field in @meta.data
 #' @export
-
+# seurat A Seurat object
+# name The meta.data field that needs releveling
+# groups i.e. c("0%", "1%", "10%", "100%")
+# bkvname either of c("BKVm5", "LT")
 relevel_groupgenotype_in_Seurat = function (seurat, name, groups, bkvname) {
   if (missing(seurat) || missing(name) || missing(groups) || missing(bkvname)) {
     stop("Must supply seurat, name, groups, and bkvname to 'myrelevel'")
