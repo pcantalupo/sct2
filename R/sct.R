@@ -51,9 +51,11 @@ Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
 #' @return A list of scmapCluster() objects. A self Sankey plot will be generated and opened in a browser for every column in colData()
 #' @export
 #' @examples
+#' \dontrun{
 #' names = c("Detox", "DNAReplication", "Quiescent")
 #' sce = Seurat2SingleCellExperiment(seurat, names) # 'seurat' is created through use of Seurat package
 #' Self_scmapCluster(sce)
+#' }
 
 Self_scmapCluster = function (sce) {
   require(scmap)
@@ -89,7 +91,7 @@ Self_scmapCluster = function (sce) {
 #' @return A list containing two lists ('1vs2' and '2vs1'). Each list contains a set of scmapCluster() objects. Sankey plots for sce1 vs sce2 and Sankey plots for sce2 vs sce1. Each plot will open in a browser.
 #' @export
 #' @examples
-#' names1 = c("Detox", "DNAReplication" "Quiescent")
+#' names1 = c("Detox", "DNAReplication", "Quiescent")
 #' names2 = c("Cellcycle", "Apoptosis" "Quiescent")
 #' sce1 = Seurat2SingleCellExperiment(seurat1, names1) # 'seurat1' is created through use of Seurat package
 #' sce2 = Seurat2SingleCellExperiment(seurat2, names2)
