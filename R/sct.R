@@ -4,6 +4,60 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
+
+#' SeuratInfo
+#'
+#' Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default. 
+#' @param seurat A Seurat object
+SeuratInfo = function(seurat) {
+  require(Seurat)
+  message("\nSeurat object level info")
+  message("------------------------")
+  message("Metadata: ")
+  print(head(seurat[[]], n=2))
+  message(paste0("Reductions: ", paste(names(seurat@reductions), collapse = ", ")))
+  message(paste0("Graphs: ", paste(names(seurat@graphs), collapse = ", ")))
+  message("Idents (aka levels): ")
+  tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
+  df = data.frame(Count = as.integer(tab))
+  rownames(df) = rownames(tab)
+  print(t(df))
+
+  message("\nAssays")# (default: ", DefaultAssay(seurat), ")")
+  message("------")
+  slotinfo = list(); slots = c("counts", "data", "scale.data")
+  assays = names(seurat@assays)
+  for (assay in assays) {
+    defaultassay = ifelse (DefaultAssay(seurat) == assay, "YES", "")
+
+    assaydata = lapply(slots, \(s) { GetAssayData(seurat, slot = s, assay = assay) })
+    names(assaydata) = slots
+    dims = unlist(lapply(slots, \(s) { paste0(nrow(assaydata[[s]]), "x", ncol(assaydata[[s]])) }))
+    hvgs = length(VariableFeatures(seurat, assay = assay))
+
+    slotinfo[[assay]] = c(defaultassay, dims, hvgs)
+  }
+  df = data.frame(do.call(rbind, slotinfo))
+  colnames(df) = c("default", "counts", "data", "scale.data", "HVGs")
+  print(df)
+}
+
+#' FindIdentLabel
+#'
+#' Find identical label between ident and metadata
+#' Attribution: https://github.com/nyuhuyang/SeuratExtra/blob/master/R/Seurat4_functions.R
+#' @param seurat A Seurat object
+#' @return The colname in metadata
+FindIdentLabel <- function(seurat) {
+  require(dplyr)
+  ident.label <- Idents(seurat)
+  labels <- apply(seurat@meta.data,2,
+                  function(x) all(ident.label == x)) %>% .[.] %>% .[!is.na(.)]
+  label <- names(labels[labels])
+  label = label[!(label %in% c("seurat_clusters","ident"))][1]
+  return(label)
+}
+
 #' Seurat2SingleCellExperiment
 #'
 #' This function creates a Bioconductor SingleCellExperiment from a Seurat object. Raw counts are extracted for the cells used in building the Seurat clusters. The raw counts are normalized by 'scater' package. If you get the following warning message you can ignore it (it comes from scater normalize function): In .local(object, ...) : using library sizes as size factors.
