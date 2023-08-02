@@ -146,7 +146,7 @@ Self_scmapCluster = function (sce) {
 #' @export
 #' @examples
 #' names1 = c("Detox", "DNAReplication", "Quiescent")
-#' names2 = c("Cellcycle", "Apoptosis" "Quiescent")
+#' names2 = c("Cellcycle", "Apoptosis", "Quiescent")
 #' sce1 = Seurat2SingleCellExperiment(seurat1, names1) # 'seurat1' is created through use of Seurat package
 #' sce2 = Seurat2SingleCellExperiment(seurat2, names2)
 #' TwoSample_scmapCluster(sce1, sce2)
