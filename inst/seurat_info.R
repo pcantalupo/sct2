@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 pacman::p_load('optparse')
 
 ##################### Options ########################
