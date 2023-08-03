@@ -50,9 +50,9 @@ SeuratInfo = function(seurat) {
 #' @return The colname in metadata
 FindIdentLabel <- function(seurat) {
   require(dplyr)
-  ident.label <- Idents(seurat)
-  labels <- apply(seurat@meta.data,2,
-                  function(x) all(ident.label == x)) %>% .[.] %>% .[!is.na(.)]
+  ident.label <- as.character(Idents(seurat))
+  labels <- sapply(colnames(seurat@meta.data),
+                   function(x) all(ident.label == seurat@meta.data[,x])) %>% .[.] %>% .[!is.na(.)]
   label <- names(labels[labels])
   label = label[!(label %in% c("seurat_clusters","ident"))][1]
   return(label)
