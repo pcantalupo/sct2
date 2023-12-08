@@ -5,16 +5,20 @@ Version: 0.1.2
 Author: Paul Cantalupo
 Maintainer: <pcantalupo@gmail.com>
 Description: Helper functions for analyzing SCT data.
-License: CC0
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  Seurat,
-  SingleCellExperiment,
-  scater,
-  scmap,
-  pheatmap,
-  RColorBrewer,
-  gridExtra,
-  dplyr
-RoxygenNote: 7.0.2
+    Seurat,
+    SingleCellExperiment,
+    scater,
+    scmap,
+    pheatmap,
+    RColorBrewer,
+    gridExtra,
+    dplyr,
+    magrittr
+RoxygenNote: 7.2.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
