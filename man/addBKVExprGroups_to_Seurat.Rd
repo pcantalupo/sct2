@@ -16,6 +16,8 @@ A Seurat object with 4 new columns in @meta.data
 This function adds 4 columns to slot @meta.data of a Seurat object. They are 1) VP1_group, 2) VP1_group_genotype, 3) LTAg_group, and 4) LTAg_group_genotype.
 }
 \examples{
+\dontrun{
 seurat = addBKVExprGroups_to_Seurat(seurat)
+}
 }
 \keyword{Seurat}

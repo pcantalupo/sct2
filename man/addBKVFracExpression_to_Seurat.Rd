@@ -16,6 +16,8 @@ A Seurat object with 7 new columns in @meta.data
 This function adds seven columns to slot @meta.data of a Seurat object. They are 1) Total_mRNA, 2) counts_VP1, 3) counts_LTAg, 4) counts_BKV, 5) frac_VP1, 6) frac_LTAg, and 7) frac_BKV. 'Total_mRNA' is the sum of the raw UMI counts in each cell. The 'counts' are sum of raw counts for VP1 or LTAg in each cell. 'Frac' is the fraction of VP1 (or LTAg, BKV) counts in each cell using 'Total_mRNA'.
 }
 \examples{
+\dontrun{
 seurat = addBKVFracExpression_to_Seurat(seurat)
+}
 }
 \keyword{Seurat}

@@ -1,62 +1,3 @@
-# sct
-
-#   Build and Reload Package:  'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
-
-
-#' SeuratInfo
-#'
-#' Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default. 
-#' @param seurat A Seurat object
-SeuratInfo = function(seurat) {
-  require(Seurat)
-  message("\nSeurat object level info")
-  message("------------------------")
-  message("Metadata: ")
-  print(head(seurat[[]], n=2))
-  message(paste0("Reductions: ", paste(names(seurat@reductions), collapse = ", ")))
-  message(paste0("Graphs: ", paste(names(seurat@graphs), collapse = ", ")))
-  message("Idents (aka levels): ")
-  tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
-  df = data.frame(Count = as.integer(tab))
-  rownames(df) = rownames(tab)
-  print(t(df))
-
-  message("\nAssays")# (default: ", DefaultAssay(seurat), ")")
-  message("------")
-  slotinfo = list(); slots = c("counts", "data", "scale.data")
-  assays = names(seurat@assays)
-  for (assay in assays) {
-    defaultassay = ifelse (DefaultAssay(seurat) == assay, "YES", "")
-
-    assaydata = lapply(slots, \(s) { GetAssayData(seurat, slot = s, assay = assay) })
-    names(assaydata) = slots
-    dims = unlist(lapply(slots, \(s) { paste0(nrow(assaydata[[s]]), "x", ncol(assaydata[[s]])) }))
-    hvgs = length(VariableFeatures(seurat, assay = assay))
-
-    slotinfo[[assay]] = c(defaultassay, dims, hvgs)
-  }
-  df = data.frame(do.call(rbind, slotinfo))
-  colnames(df) = c("default", "counts", "data", "scale.data", "HVGs")
-  print(df)
-}
-
-#' FindIdentLabel
-#'
-#' Find identical label between ident and metadata
-#' Attribution: https://github.com/nyuhuyang/SeuratExtra/blob/master/R/Seurat4_functions.R
-#' @param seurat A Seurat object
-#' @return The colname in metadata
-FindIdentLabel <- function(seurat) {
-  require(dplyr)
-  ident.label <- as.character(Idents(seurat))
-  labels <- sapply(colnames(seurat@meta.data),
-                   function(x) all(ident.label == seurat@meta.data[,x])) %>% .[.] %>% .[!is.na(.)]
-  label <- names(labels[labels])
-  label = label[!(label %in% c("seurat_clusters","ident"))][1]
-  return(label)
-}
 
 #' Seurat2SingleCellExperiment
 #'
@@ -68,12 +9,13 @@ FindIdentLabel <- function(seurat) {
 #' @return A SingleCellExperiment object
 #' @export
 #' @examples
+#' \dontrun{
 #' Seurat2SingleCellExperiment(seurat, c(1,2,3))   # 'seurat' is created through use of Seurat package
-
+#' }
 Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
-  require(Seurat)
-  require(SingleCellExperiment)
-  require(scater)
+  #require(Seurat)
+  #require(SingleCellExperiment)
+  #require(scater)
 
   cells.to.include = seurat@cell.names  # the cells that were used for cluster determination
   counts = as.data.frame(as.matrix(seurat@raw.data[,cells.to.include]))  # The raw data contains all cells, so need to only select for those that were used for cluster determination. Counts are raw UMIFM counts.
@@ -101,7 +43,7 @@ Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
 #' From a SingleCellExperiment object, this function performs a scmap cluster analysis on itself. Useful for validating clusters.
 #' @param sce A SingleCellExperiment object (returned object from Seurat2SingleCellExperiment) with colData populated with 1 or more columns.
 #' @keywords scmap
-#' @import scmap
+#' @import scmap SingleCellExperiment
 #' @return A list of scmapCluster() objects. A self Sankey plot will be generated and opened in a browser for every column in colData()
 #' @export
 #' @examples
@@ -110,10 +52,9 @@ Seurat2SingleCellExperiment = function (seurat, clusterlabels = NULL) {
 #' sce = Seurat2SingleCellExperiment(seurat, names) # 'seurat' is created through use of Seurat package
 #' Self_scmapCluster(sce)
 #' }
-
 Self_scmapCluster = function (sce) {
-  require(scmap)
-  require(SingleCellExperiment)
+  #require(scmap)
+  #require(SingleCellExperiment)
   sce <- selectFeatures(sce, suppress_plot = T)
 
   scr = list()
@@ -141,19 +82,20 @@ Self_scmapCluster = function (sce) {
 #' @param sce1 A SingleCellExperiment object with colData populated with 1 or more columns (such as the returned object from Seurat2SingleCellExperiment function).
 #' @param sce2 Same as 'sce1'. Needs to have the same number of column names in 'colData'.
 #' @keywords scmap
-#' @import scmap
+#' @import scmap SingleCellExperiment
 #' @return A list containing two lists ('1vs2' and '2vs1'). Each list contains a set of scmapCluster() objects. Sankey plots for sce1 vs sce2 and Sankey plots for sce2 vs sce1. Each plot will open in a browser.
 #' @export
 #' @examples
+#' \dontrun{
 #' names1 = c("Detox", "DNAReplication", "Quiescent")
 #' names2 = c("Cellcycle", "Apoptosis", "Quiescent")
 #' sce1 = Seurat2SingleCellExperiment(seurat1, names1) # 'seurat1' is created through use of Seurat package
 #' sce2 = Seurat2SingleCellExperiment(seurat2, names2)
 #' TwoSample_scmapCluster(sce1, sce2)
-
+#' }
 TwoSample_scmapCluster = function (sce1, sce2) {
-  require(scmap)
-  require(SingleCellExperiment)
+  #require(scmap)
+  #require(SingleCellExperiment)
   sce1 <- selectFeatures(sce1, suppress_plot = T)
   sce2 <- selectFeatures(sce2, suppress_plot = T)
 
@@ -202,10 +144,11 @@ TwoSample_scmapCluster = function (sce1, sce2) {
 #' @return A Seurat object with 7 new columns in @meta.data
 #' @export
 #' @examples
+#' \dontrun{
 #' seurat = addBKVFracExpression_to_Seurat(seurat)
-
+#' }
 addBKVFracExpression_to_Seurat = function(seurat) {
-  require(Seurat)
+  #require(Seurat)
   rawdata.filt = seurat@raw.data[,seurat@cell.names]  # get raw data for the filtered cells
   bkv.data = data.frame("Total_mRNA" = colSums(as.matrix(rawdata.filt)))
 
@@ -252,14 +195,16 @@ relevel_groupgenotype_in_Seurat = function (seurat, name, groups, bkvname) {
 #' This function adds 4 columns to slot @meta.data of a Seurat object. They are 1) VP1_group, 2) VP1_group_genotype, 3) LTAg_group, and 4) LTAg_group_genotype.
 #' @param seurat A Seurat object
 #' @keywords Seurat
-#' @import Seurat
+#' @import Seurat dplyr
 #' @return A Seurat object with 4 new columns in @meta.data
 #' @export
 #' @examples
+#' \dontrun{
 #' seurat = addBKVExprGroups_to_Seurat(seurat)
+#' }
 addBKVExprGroups_to_Seurat = function(seurat) {
-  require(Seurat)
-  require(dplyr)
+  #require(Seurat)
+  #require(dplyr)
 
   # Add VP1 group info to Seurat
   message("Adding VP1 group metadata")
@@ -305,11 +250,12 @@ addBKVExprGroups_to_Seurat = function(seurat) {
 #' @return A Seurat object with 3 new columns in @meta.data
 #' @export
 #' @examples
+#' \dontrun{
 #' seurat = addUpperLowerBound_to_Seurat(seurat)
 #' seurat = addUpperLowerBound_to_Seurat(seurat, pheno.use = 'nUMI')
-
+#' }
 addUpperLowerBound_to_Seurat = function(seurat, pheno.use = "Total_mRNA") {
-  require(Seurat)
+  #require(Seurat)
   m = mean(log10(seurat@meta.data[,pheno.use]))
   s = sd(log10(seurat@meta.data[,pheno.use]))
   upper_bound = 10^(m + 2*s)
@@ -345,10 +291,11 @@ addUpperLowerBound_to_Seurat = function(seurat, pheno.use = "Total_mRNA") {
 #' @return Nothing
 #' @export
 #' @examples
+#' \dontrun{
 #' densityPlot_Seurat(seurat)
-
+#' }
 densityPlot_Seurat = function(seurat) {
-  require(Seurat)
+  #require(Seurat)
   pheno.use = attributes(seurat)$local[['filter.pheno.use']]
   ub = attributes(seurat)$local[['filter.upper.bound']]
   lb = attributes(seurat)$local[['filter.lower.bound']]
@@ -370,12 +317,13 @@ densityPlot_Seurat = function(seurat) {
 #' @return Nothing
 #' @export
 #' @examples
+#' \dontrun{
 #' output_process_heatmaps(aligned, markers, "processheatmaps.alignment.pdf")
-
+#' }
 output_process_heatmaps = function (seurat_align, markers, pdffile, ...) {
   # Create heatmaps for each Process in marker and marker.conserved tables
   #   markers
-  require(gridExtra)
+  #require(gridExtra)
   while (!is.null(dev.list()))  dev.off()
   pdf(pdffile)
   processes = names(table(markers$Process))[!grepl(";", names(table(markers$Process)))]
@@ -390,8 +338,8 @@ output_process_heatmaps = function (seurat_align, markers, pdffile, ...) {
 }
 
 
-#' process_heatmap
-#'
+#' @title Process heatmap
+#' @description
 #' Builds an unclustered and a clustered scaled heatmap for genes in a Process from Marker tables.
 #' @param object A Seurat object
 #' @param markers Marker table from Seurat 
@@ -402,11 +350,14 @@ output_process_heatmaps = function (seurat_align, markers, pdffile, ...) {
 #' @return List of 3 objects: 2 pheatmaps (unclustered and clustered) and scaled data
 #' @export
 #' @examples
+#' \dontrun{
 #' process_heatmaps(seurat, markers, process = process, ...)
-
+#' }
 process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow = 4, ...) {
-  require(dplyr)
-  require(Seurat)
+  #require(dplyr)
+  #require(Seurat)
+  #require(pheatmap)
+  #require(RColorBrewer)
   
   genes = markers %>% dplyr::filter(Process == process, !is.na(gene)) %>% select(gene) %>% unlist(use.names = F) %>% unique()
   if (length(genes) < 2) {
@@ -433,8 +384,6 @@ process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow
   
   message("Genes use: ", paste0(rownames(expr), collapse=", "))
 
-  require(pheatmap)
-  require(RColorBrewer)
   if (is.null(colors)) {
     #colors = colorRampPalette(c("black","skyblue2","gold"))(100)
     colors = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100)  # default
@@ -458,6 +407,8 @@ process_heatmap = function (object, markers, process, colors = NULL, fontsizeRow
 
 # Returns list of 2 pheatmaps (unclustered and clustered)
 process_heatmap_old = function (object, markers, process, colors = NULL, fontsizeRow = 4, ...) {
+  #  require(pheatmap)
+  #  require(RColorBrewer)
   genes = markers %>% filter(Process == process) %>% select(gene) %>% unlist(use.names = F) %>% unique()
   if (length(genes) < 2) {
     return (NULL)
@@ -466,8 +417,6 @@ process_heatmap_old = function (object, markers, process, colors = NULL, fontsiz
   expr = AverageExpression(object, genes.use = genes)
   # scale(expr)  # don't want this since it scales and centers rows and columns
   
-  require(pheatmap)
-  require(RColorBrewer)
   if (is.null(colors)) {
     #colors = colorRampPalette(c("black","skyblue2","gold"))(100)
     colors = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100)  # default

@@ -16,6 +16,8 @@ Nothing
 Outputs a Density plot for all cells. The data used will be the same metadata column name used in the addUpperLowerBound_to_Seurat() function call. Draws vertical lines to show the lower and upper bound cutoff.
 }
 \examples{
+\dontrun{
 densityPlot_Seurat(seurat)
+}
 }
 \keyword{Seurat}

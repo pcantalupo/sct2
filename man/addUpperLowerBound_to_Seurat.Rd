@@ -21,7 +21,9 @@ This function adds three columns to slot @meta.data of a Seurat object. They are
 From Monocle documentation: removed the cells with very low mRNA recovery or far more mRNA that the typical cell. Often, doublets or triplets have roughly twice the mRNA recovered as true single cells, so the latter filter is another means of excluding all but single cells from the analysis. Such filtering is handy if your protocol doesn't allow directly visualization of cell after they've been captured.
 }
 \examples{
+\dontrun{
 seurat = addUpperLowerBound_to_Seurat(seurat)
 seurat = addUpperLowerBound_to_Seurat(seurat, pheno.use = 'nUMI')
+}
 }
 \keyword{Seurat}

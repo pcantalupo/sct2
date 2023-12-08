@@ -20,7 +20,9 @@ Nothing
 Wrapper around process_heatmap() that outputs all heatmaps to a PDF.
 }
 \examples{
+\dontrun{
 output_process_heatmaps(aligned, markers, "processheatmaps.alignment.pdf")
+}
 }
 \keyword{Seurat}
 \keyword{heatmap}

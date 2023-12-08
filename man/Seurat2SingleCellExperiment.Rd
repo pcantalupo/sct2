@@ -18,7 +18,9 @@ A SingleCellExperiment object
 This function creates a Bioconductor SingleCellExperiment from a Seurat object. Raw counts are extracted for the cells used in building the Seurat clusters. The raw counts are normalized by 'scater' package. If you get the following warning message you can ignore it (it comes from scater normalize function): In .local(object, ...) : using library sizes as size factors.
 }
 \examples{
+\dontrun{
 Seurat2SingleCellExperiment(seurat, c(1,2,3))   # 'seurat' is created through use of Seurat package
+}
 }
 \keyword{Bioconductor}
 \keyword{Seurat}

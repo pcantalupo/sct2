@@ -2,7 +2,7 @@
 % Please edit documentation in R/sct.R
 \name{process_heatmap}
 \alias{process_heatmap}
-\title{process_heatmap}
+\title{Process heatmap}
 \usage{
 process_heatmap(object, markers, process, colors = NULL, fontsizeRow = 4, ...)
 }
@@ -22,7 +22,9 @@ List of 3 objects: 2 pheatmaps (unclustered and clustered) and scaled data
 Builds an unclustered and a clustered scaled heatmap for genes in a Process from Marker tables.
 }
 \examples{
+\dontrun{
 process_heatmaps(seurat, markers, process = process, ...)
+}
 }
 \keyword{Seurat}
 \keyword{pheatmap}
