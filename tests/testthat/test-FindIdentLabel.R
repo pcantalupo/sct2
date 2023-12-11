@@ -1,4 +1,4 @@
+library(Seurat)
 test_that("FindIdentLabel works", {
-  # TBD
-  expect_equal(2 * 2, 4)
+  expect_equal(FindIdentLabel(pbmc_small), "RNA_snn_res.1")
 })
