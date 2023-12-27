@@ -16,11 +16,9 @@ if (opts$seuratrds == "") {
 
 pacman::p_load('Seurat', 'sct')
 
-message("Seurat version: ", packageVersion('Seurat'))
-
 seurat = readRDS(opts$seuratrds)
 SeuratInfo(seurat)
 
-message("\n")
+message("\nIdentLabel:")
 FindIdentLabel(seurat)
 

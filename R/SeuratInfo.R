@@ -11,28 +11,32 @@
 SeuratInfo = function(seurat) {
   message("\nSeurat object level info")
   message("------------------------")
-  message("Metadata: ")
+
+  message("\nSeurat version: ", seurat@version)
+
+  message("\nMetadata: ")
   print(head(seurat[[]], n=2))
-  message(paste0("Reductions: ", paste(names(seurat@reductions), collapse = ", ")))
-  message(paste0("Graphs: ", paste(names(seurat@graphs), collapse = ", ")))
-  message("Idents (aka levels): ")
+
+  message(paste0("\nReductions: ", paste(names(seurat@reductions), collapse = ", ")))
+  message(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
+  message("\nIdents (aka levels): ")
   tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
   df = data.frame(Count = as.integer(tab))
   rownames(df) = rownames(tab)
   print(t(df))
-  
+
   message("\nAssays")# (default: ", DefaultAssay(seurat), ")")
   message("------")
   slotinfo = list(); slots = c("counts", "data", "scale.data")
   assays = names(seurat@assays)
   for (assay in assays) {
     defaultassay = ifelse (DefaultAssay(seurat) == assay, "YES", "")
-    
+
     assaydata = lapply(slots, \(s) { GetAssayData(seurat, slot = s, assay = assay) })
     names(assaydata) = slots
     dims = unlist(lapply(slots, \(s) { paste0(nrow(assaydata[[s]]), "x", ncol(assaydata[[s]])) }))
     hvgs = length(VariableFeatures(seurat, assay = assay))
-    
+
     slotinfo[[assay]] = c(defaultassay, dims, hvgs)
   }
   df = data.frame(do.call(rbind, slotinfo))
