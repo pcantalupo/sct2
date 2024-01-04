@@ -4,6 +4,7 @@
 #' @param seurat A Seurat object
 #' @export
 #' @import Seurat
+#' @importFrom utils head
 #' @examples
 #' \dontrun{
 #' SeuratInfo(seurat)
