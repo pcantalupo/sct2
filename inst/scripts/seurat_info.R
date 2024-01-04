@@ -14,7 +14,7 @@ if (opts$seuratrds == "") {
   quit(status=1)
 }
 
-pacman::p_load('Seurat', 'sct')
+pacman::p_load('Seurat', 'sct2')
 
 seurat = readRDS(opts$seuratrds)
 SeuratInfo(seurat)

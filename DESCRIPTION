@@ -1,4 +1,4 @@
-Package: sct
+Package: sct2
 Type: Package
 Title: Helper Functions for Single Cell Transcriptomics (SCT)
 Version: 0.2.0
@@ -19,3 +19,5 @@ RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)

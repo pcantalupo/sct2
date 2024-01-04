@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(sct)
+library(sct2)
 
-test_check("sct")
+test_check("sct2")
