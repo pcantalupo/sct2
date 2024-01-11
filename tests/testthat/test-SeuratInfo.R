@@ -1,6 +1,5 @@
-library(Seurat)
 test_that("SeuratInfo works", {
-  val = SeuratInfo(pbmc_small)
+  #val = SeuratInfo(pbmc_small)
   #dput(val)
   # checking that the last print() in SeuratInfo returns the correct value
   expect_equal(SeuratInfo(pbmc_small),
