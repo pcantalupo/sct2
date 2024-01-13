@@ -20,8 +20,8 @@ From a SingleCellExperiment object, this function performs a scmap cluster
 analysis on itself. Useful for validating clusters.
 }
 \examples{
-\dontrun{
-Self_scmapCluster(sce)
-}
+
+selfscmap = Self_scmapCluster(pbmc_small_sce)
+
 }
 \keyword{scmap}

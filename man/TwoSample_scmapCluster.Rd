@@ -23,8 +23,8 @@ This function performs a scmap cluster analysis on two Single Cell Experiment
 objects.
 }
 \examples{
-\dontrun{
-TwoSample_scmapCluster(sce1, sce2)
-}
+
+twosample_scmap = TwoSample_scmapCluster(pbmc_small_sce, pbmc_small_sce)
+
 }
 \keyword{scmap}

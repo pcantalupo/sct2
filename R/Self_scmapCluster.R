@@ -16,9 +16,9 @@
 #' for each 'clustercols' and automatically opened in a browser
 #' @export
 #' @examples
-#' \dontrun{
-#' Self_scmapCluster(sce)
-#' }
+#'
+#' selfscmap = Self_scmapCluster(pbmc_small_sce)
+#'
 Self_scmapCluster = function (sce, clustercols = "RNA_snn_res.0.8") {
   rowData(sce)$feature_symbol <- rownames(sce)   # must have 'feature_symbol' in rowData
 

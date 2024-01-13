@@ -18,9 +18,9 @@
 #' plots for sce2 vs sce1. Each plot will open in a browser.
 #' @export
 #' @examples
-#' \dontrun{
-#' TwoSample_scmapCluster(sce1, sce2)
-#' }
+#'
+#' twosample_scmap = TwoSample_scmapCluster(pbmc_small_sce, pbmc_small_sce)
+#'
 TwoSample_scmapCluster = function (sce1, sce2, clustercols = "RNA_snn_res.0.8") {
   # must have 'feature_symbol' in rowData
   rowData(sce1)$feature_symbol <- rownames(sce1)
