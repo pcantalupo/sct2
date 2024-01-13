@@ -6,9 +6,9 @@
 #' @import Seurat
 #' @importFrom utils head
 #' @examples
-#' \dontrun{
-#' SeuratInfo(seurat)
-#' }
+#'
+#' SeuratInfo(pbmc_small)
+#'
 SeuratInfo = function(seurat) {
   message("\nSeurat object level info")
   message("------------------------")

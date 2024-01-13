@@ -5,12 +5,13 @@
 #' @param seurat A Seurat object
 #' @return The colname in metadata
 #' @export
-#' @importFrom Seurat Idents 
+#' @importFrom Seurat Idents
 #' @importFrom magrittr %>%
 #' @examples
-#' \dontrun{
-#' FindIdentLabel(seurat)
-#' }
+#'
+#' # Get the identity label for pbmc_small
+#' FindIdentLabel(pbmc_small)
+#'
 FindIdentLabel <- function(seurat) {
   ident.label <- as.character(Idents(seurat))
   labels <- sapply(colnames(seurat@meta.data),

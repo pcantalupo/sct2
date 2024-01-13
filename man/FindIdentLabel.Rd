@@ -16,9 +16,10 @@ The colname in metadata
 Find identical label between ident and metadata
 }
 \examples{
-\dontrun{
-FindIdentLabel(seurat)
-}
+
+# Get the identity label for pbmc_small
+FindIdentLabel(pbmc_small)
+
 }
 \references{
 https://github.com/nyuhuyang/SeuratExtra/blob/master/R/Seurat4_functions.R
