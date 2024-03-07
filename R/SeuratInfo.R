@@ -10,24 +10,23 @@
 #' SeuratInfo(pbmc_small)
 #'
 SeuratInfo = function(seurat) {
-  message("\nSeurat object level info")
-  message("------------------------")
+  cat("Seurat version: ", as.character(seurat@version), "\n")
 
-  message("\nSeurat version: ", seurat@version)
+  cat("\nMetadata: ")
+  cat(str(seurat[[]]))
 
-  message("\nMetadata: ")
-  print(head(seurat[[]], n=2))
-
-  message(paste0("\nReductions: ", paste(names(seurat@reductions), collapse = ", ")))
-  message(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
-  message("\nIdents (aka levels): ")
+  cat(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
+  cat(paste0("\nReductions: ", paste(names(seurat@reductions), collapse = ", ")))
+  if (length(seurat@images) > 0) {
+    cat("\nImages: ", paste(names(seurat@images), collapse = ", "))
+  }
+  cat("\nIdents():\n")
   tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
   df = data.frame(Count = as.integer(tab))
   rownames(df) = rownames(tab)
   print(t(df))
 
-  message("\nAssays")# (default: ", DefaultAssay(seurat), ")")
-  message("------")
+  cat("\nAssays:\n")# (default: ", DefaultAssay(seurat), ")")
   slotinfo = list(); slots = c("counts", "data", "scale.data")
   assays = names(seurat@assays)
   for (assay in assays) {
