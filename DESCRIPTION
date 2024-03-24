@@ -10,11 +10,13 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     magrittr,
+    readr,
     S4Vectors,
     scmap,
     Seurat,
     SingleCellExperiment,
-    SummarizedExperiment
+    SummarizedExperiment,
+    tibble
 RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0)

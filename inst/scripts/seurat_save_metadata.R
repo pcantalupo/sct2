@@ -9,22 +9,22 @@ option_list=list(
 opt_parser <- OptionParser(option_list=option_list)
 opts <- parse_args(opt_parser)
 
-if (opts$seuratrds == "") {
-  message("\nError: --seuratrds is required.")
-  print_help(opt_parser)
-  quit(status=1)
+check_params = function(opt, name) {
+  if (opt == "") {
+    print_help(opt_parser)
+    stop(paste("Argument:", name, " is required"))
+  }
 }
 
-if (opts$outfile == "") {
-  message("\nError: --outfile is required.")
-  print_help(opt_parser)
-  quit(status=1)
-}
+check_params(opts$seuratrds, "--seuratrds")
+check_params(opts$outfile, "--outfile")
 
+#####################################################
 
-seurat = readRDS(opts$seuratrds)
-md = seurat[[]]
-write.table(md, opts$outfile, sep = "\t", quote = FALSE, col.names = NA)
+pacman::p_load(sct2)
 
+SaveMetadata(readRDS(opts$seuratrds), opts$outfile)
 
+cat("\n\n")
+devtools::session_info()
 
