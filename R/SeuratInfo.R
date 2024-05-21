@@ -4,7 +4,8 @@
 #' @param seurat A Seurat object
 #' @export
 #' @import Seurat
-#' @importFrom utils head
+#' @importFrom SeuratObject LayerData
+#' @importFrom utils head str
 #' @examples
 #'
 #' SeuratInfo(pbmc_small)
@@ -16,10 +17,15 @@ SeuratInfo = function(seurat) {
   cat(str(seurat[[]]))
 
   cat(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
+
   cat(paste0("\nReductions: ", paste(names(seurat@reductions), collapse = ", ")))
+
   if (length(seurat@images) > 0) {
     cat("\nImages: ", paste(names(seurat@images), collapse = ", "))
   }
+
+  cat("\nIdent label:", FindIdentLabel(seurat))
+  
   cat("\nIdents():\n")
   tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
   df = data.frame(Count = as.integer(tab))
@@ -32,7 +38,14 @@ SeuratInfo = function(seurat) {
   for (assay in assays) {
     defaultassay = ifelse (DefaultAssay(seurat) == assay, "YES", "")
 
-    assaydata = lapply(slots, \(s) { GetAssayData(seurat, slot = s, assay = assay) })
+    assaydata = lapply(slots, function(slot) {
+      if (substr(as.character(seurat@version), 1,1) == "5") {
+        data = LayerData(seurat, layer = slot, assay = assay)    # version 5
+      } else {
+        data = GetAssayData(seurat, layer = slot, assay = assay) # previous versions
+      }
+      return(data)
+    })
     names(assaydata) = slots
     dims = unlist(lapply(slots, \(s) { paste0(nrow(assaydata[[s]]), "x", ncol(assaydata[[s]])) }))
     hvgs = length(VariableFeatures(seurat, assay = assay))
