@@ -19,6 +19,7 @@ pbmc_small_v5 = CreateSeuratObject(counts, meta.data = pbmc_small[[]])
 LayerData(pbmc_small_v5, layer = "data") = GetAssayData(pbmc_small, layer = "data")
 LayerData(pbmc_small_v5, layer = "scale.data") = GetAssayData(pbmc_small, layer = "scale.data")
 VariableFeatures(pbmc_small_v5) = VariableFeatures(pbmc_small)
+pbmc_small_v5[['tsne']] = pbmc_small[['tsne']]
 saveRDS(pbmc_small_v5, "inst/extdata/pbmc_small_v5.rds")
 usethis::use_data(pbmc_small_v5, overwrite = TRUE)
 
