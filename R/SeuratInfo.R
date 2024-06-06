@@ -18,14 +18,18 @@ SeuratInfo = function(seurat) {
 
   cat(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
 
-  cat(paste0("\nReductions: ", paste(names(seurat@reductions), collapse = ", ")))
+  assayused = sapply(names(seurat@reductions), function(name) {
+    return(seurat[[name]]@assay.used)
+  })
+  cat(paste0("\nReductions: ", paste(names(assayused), " (", assayused, ")", sep = "",
+                                     collapse = ", ")))
 
   if (length(seurat@images) > 0) {
     cat("\nImages: ", paste(names(seurat@images), collapse = ", "))
   }
 
   cat("\nIdent label:", FindIdentLabel(seurat))
-  
+
   cat("\nIdents():\n")
   tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
   df = data.frame(Count = as.integer(tab))
