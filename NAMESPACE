@@ -2,11 +2,13 @@
 
 export(FindIdentLabel)
 export(FixClusterFactorLevels)
+export(FixFragmentPaths)
 export(SaveMetadata)
 export(Self_scmapCluster)
 export(SeuratInfo)
 export(TwoSample_scmapCluster)
 import(Seurat)
+import(Signac)
 import(SingleCellExperiment)
 importFrom(S4Vectors,metadata)
 importFrom(Seurat,Idents)
