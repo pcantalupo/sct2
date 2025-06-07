@@ -2,6 +2,7 @@
 #' @description
 #' Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default.
 #' @param seurat A Seurat object
+#' @param metadata Show metadata? (default FALSE)
 #' @export
 #' @import Seurat
 #' @importFrom SeuratObject LayerData
@@ -10,11 +11,13 @@
 #'
 #' SeuratInfo(pbmc_small)
 #'
-SeuratInfo = function(seurat) {
+SeuratInfo = function(seurat, metadata = FALSE) {
   cat("Seurat version: ", as.character(seurat@version), "\n")
 
-  cat("\nMetadata: ")
-  cat(str(seurat[[]]))
+  if (metadata) {
+    cat("\nMetadata: ")
+    cat(str(seurat[[]]))
+  }
 
   cat(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
 
