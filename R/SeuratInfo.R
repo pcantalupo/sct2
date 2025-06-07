@@ -36,26 +36,37 @@ SeuratInfo = function(seurat) {
   rownames(df) = rownames(tab)
   print(t(df))
 
+
   cat("\nAssays:\n")# (default: ", DefaultAssay(seurat), ")")
+  is_v5 = substr(as.character(seurat@version), 1, 1) == "5"
+  default_assay = DefaultAssay(seurat)
+
   slotinfo = list(); slots = c("counts", "data", "scale.data")
+  chromatin_info = list()
+
   assays = names(seurat@assays)
   for (assay in assays) {
-    defaultassay = ifelse (DefaultAssay(seurat) == assay, "YES", "")
+    defaultassay = ifelse (default_assay == assay, "YES", "")
 
-    assaydata = lapply(slots, function(slot) {
-      if (substr(as.character(seurat@version), 1,1) == "5") {
-        data = LayerData(seurat, layer = slot, assay = assay)    # version 5
-      } else {
-        data = GetAssayData(seurat, layer = slot, assay = assay) # previous versions
-      }
-      return(data)
+    # Get dimensions efficiently without returning full matrices
+    dims = sapply(slots, function(slot) {
+      tryCatch({
+        if (is_v5) {
+          layer_data = LayerData(seurat, layer = slot, assay = assay)
+        } else {
+          layer_data = GetAssayData(seurat, layer = slot, assay = assay)
+        }
+        paste0(nrow(layer_data), "x", ncol(layer_data))
+      }, error = function(e) {
+        "0x0"  # Handle missing slots gracefully
+      })
     })
-    names(assaydata) = slots
-    dims = unlist(lapply(slots, \(s) { paste0(nrow(assaydata[[s]]), "x", ncol(assaydata[[s]])) }))
+
     hvgs = length(VariableFeatures(seurat, assay = assay))
 
     slotinfo[[assay]] = c(defaultassay, dims, hvgs)
   }
+
   df = data.frame(do.call(rbind, slotinfo))
   colnames(df) = c("default", "counts", "data", "scale.data", "HVGs")
   print(df)
