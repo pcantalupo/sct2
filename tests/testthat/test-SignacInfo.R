@@ -1,7 +1,7 @@
 test_that("SignacInfo works", {
   info = capture.output(SignacInfo(multiome_small))
   expect_equal(info[4],
-               "ATAC: 53984 peaks, 120 cells, width range [157-3228], median 929, fragments: 6")
+               "ATAC: 100 peaks, 120 cells, width range [418-1423], median 912.5, fragments: 6")
 })
 
 test_that("SignacInfo displays fragment paths for all 6 samples", {
