@@ -38,7 +38,7 @@
 
 #' PBMC Seurat object (version 5)
 #'
-#' Converted pbmc_small into a version 5 Seurat object. 
+#' Converted pbmc_small into a version 5 Seurat object.
 #'
 #' @format
 #' Seurat object with 230 rows/genes and 80 columns/cells.
@@ -53,4 +53,13 @@
 #' @source https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/pbmc3k
 #' @references Seurat package https://satijalab.org/seurat/
 "pbmc_small_v5"
+
+
+#' Multiome Seurat object
+#'
+#' Multiome Seurat object with 6 samples (20 cells each)
+#'
+#' @format
+#' Contains two assays, RNA and ATAC. ATAC assay is a ChromatinAssay created with Signac
+"multiome_small"
 

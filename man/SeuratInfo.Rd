@@ -4,10 +4,12 @@
 \alias{SeuratInfo}
 \title{SeuratInfo}
 \usage{
-SeuratInfo(seurat)
+SeuratInfo(seurat, metadata = FALSE)
 }
 \arguments{
 \item{seurat}{A Seurat object}
+
+\item{metadata}{Show metadata? (default FALSE)}
 }
 \description{
 Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default.
