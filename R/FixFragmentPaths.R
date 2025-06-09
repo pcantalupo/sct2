@@ -15,6 +15,17 @@
 #' }
 #'
 FixFragmentPaths <- function(seurat, cellranger_path, assay = "ATAC", sample_col = "orig.ident") {
+  # Parameter checks
+  if (!dir.exists(cellranger_path)) {
+    stop(paste("Cellranger path", cellranger_path, "does not exist"))
+  }
+  if (!sample_col %in% colnames(seurat@meta.data)) {
+    stop(paste("Sample column", sample_col, "not found in Seurat metadata"))
+  }
+  if (!assay %in% Assays(seurat)) {
+    stop(paste("Assay", assay, "not found in Seurat object"))
+  }
+
   # Retrieve the ChromatinAssay
   chromassay <- seurat[[assay]]
   frags <- Fragments(chromassay)
@@ -25,12 +36,13 @@ FixFragmentPaths <- function(seurat, cellranger_path, assay = "ATAC", sample_col
     frag <- frags[[i]]
     cells_in_frag <- GetFragmentData(frag, slot = "cells")
     cell_names <- names(cells_in_frag)
-    
-    # Check for sample column in metadata
-    if (!sample_col %in% colnames(seurat@meta.data)) {
-      stop(paste("Sample column", sample_col, "not found in Seurat metadata"))
-    }
-    
+
+    # Some fragments might be empty if Seurat object was subsetted on a particular sample
+    if (length(cell_names) == 0) {
+      warning("There are no cells in fragment ", i, "...skipping this fragment")
+      next
+    } 
+
     # Get sample from metadata for the fragment's cells
     samples <- seurat@meta.data[cell_names, sample_col]
     unique_samples <- unique(samples)
