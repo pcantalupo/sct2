@@ -1,6 +1,6 @@
 #' @title FixFragmentPaths
 #' @description
-#' Fix the paths to the atac_fragments.tsv.gz file in a Seurat object 
+#' Fix the paths to the atac_fragments.tsv.gz file in a Seurat object
 #' @param seurat A Seurat object
 #' @param cellranger_path Path to the cellranger folder that contains subfolders matching the sample names in the Seurat metadata `orig.ident`
 #' @param assay The assay name for the ChromatinAssay in the Seurat object
@@ -29,8 +29,9 @@ FixFragmentPaths <- function(seurat, cellranger_path, assay = "ATAC", sample_col
   # Retrieve the ChromatinAssay
   chromassay <- seurat[[assay]]
   frags <- Fragments(chromassay)
+  frags <- frags[sapply(frags, function(x) length(x@cells) > 0)]  # Remove frags with no cells
   Fragments(chromassay) <- NULL  # Temporarily remove fragments
-  
+
   # Process each fragment
   for (i in seq_along(frags)) {
     frag <- frags[[i]]
@@ -41,23 +42,23 @@ FixFragmentPaths <- function(seurat, cellranger_path, assay = "ATAC", sample_col
     if (length(cell_names) == 0) {
       warning("There are no cells in fragment ", i, "...skipping this fragment")
       next
-    } 
+    }
 
     # Get sample from metadata for the fragment's cells
     samples <- seurat@meta.data[cell_names, sample_col]
     unique_samples <- unique(samples)
-    
+
     # Ensure all cells in the fragment belong to one sample
     if (length(unique_samples) != 1) {
       stop(paste("Cells in fragment", i, "belong to multiple samples:", paste(unique_samples, collapse = ", ")))
     }
     sample <- unique_samples[1]
     message("\nSample: ", sample)
-    
+
     # Define current and new fragment paths
     current_frag_path <- frag@path
     new_frag_path <- normalizePath(file.path(cellranger_path, sample, "outs/atac_fragments.tsv.gz"), mustWork = FALSE)
-    
+
     # Update path if it doesn’t exist or is incorrect
     if (!file.exists(current_frag_path) || current_frag_path != new_frag_path) {
       if (!file.exists(new_frag_path)) {
@@ -69,10 +70,10 @@ FixFragmentPaths <- function(seurat, cellranger_path, assay = "ATAC", sample_col
     } else {
       message("Fragment path is already correct: ", current_frag_path)
     }
-    
+
     frags[[i]] <- frag
   }
-  
+
   # Update the ChromatinAssay and Seurat object
   Fragments(chromassay) <- frags
   seurat[[assay]] <- chromassay
