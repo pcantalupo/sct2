@@ -59,7 +59,8 @@ SignacInfo = function(seurat) {
     cat(info_to_print, "\n", sep = "")
 
     for(i in 1:length(info$frag_info)) {
-      cat(paste0("  ", frag_info[[i]]$path, " (", frag_info[[i]]$ncells," cells)", "\n"))
+      cat(paste0("  ", info$frag_info[[i]]$path, " (", info$frag_info[[i]]$ncells,
+                 " cells)", "\n"))
     }
     cat("\n")
   }
