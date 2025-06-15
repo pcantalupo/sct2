@@ -12,7 +12,7 @@ multiome_small = subset(multiome, downsample = 20)
 
 # Reduce size of the Annotation from 118 MB to 42 KB by keeping just 100 annotation rows
 annots = Annotation(multiome_small[['ATAC']])
-annots_small = sample(granges(annots), size = 100)
+annots_small = sample(annots, size = 100)
 multiome_small@assays$ATAC@annotation = annots_small
 
 # Keep 100 genes and 100 peaks to further reduce size of Seurat object

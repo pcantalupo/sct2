@@ -4,16 +4,18 @@
 \alias{SignacInfo}
 \title{SignacInfo}
 \usage{
-SignacInfo(seurat)
+SignacInfo(seurat, assay = NULL, show_annotation = FALSE)
 }
 \arguments{
 \item{seurat}{A Seurat object}
+
+\item{assay}{Assay to get information for (default is all ChromAssays)}
+
+\item{show_annotation}{Show genome annotation information (default FALSE)}
 }
 \description{
 Show information about the Signac ChromatinAssays within a Seurat object
 }
 \examples{
-\dontrun{
-SignacInfo(pbmc_small)
-}
+SignacInfo(multiome_small)
 }
