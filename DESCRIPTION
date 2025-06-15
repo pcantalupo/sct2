@@ -17,7 +17,6 @@ Imports:
     Seurat,
     SeuratObject,
     Signac,
-    SingleCellExperiment,
     SummarizedExperiment,
     tibble
 RoxygenNote: 7.3.2
