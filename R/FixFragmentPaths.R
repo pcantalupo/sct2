@@ -7,8 +7,7 @@
 #' @param sample_col The column name in Seurat metadata that contains the sample identifiers
 #' @return A Seurat object
 #' @export
-#' @import Seurat
-#' @import Signac
+#' @importFrom Signac Fragments GetFragmentData
 #' @examples
 #' \dontrun{
 #' FixFragmentPaths(seurat, cellranger_path = "../cellranger_count")

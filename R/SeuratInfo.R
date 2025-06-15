@@ -4,8 +4,7 @@
 #' @param seurat A Seurat object
 #' @param metadata Show metadata? (default FALSE)
 #' @export
-#' @import Seurat
-#' @importFrom SeuratObject LayerData
+#' @importFrom SeuratObject LayerData GetAssayData DefaultAssay VariableFeatures
 #' @importFrom utils head str
 #' @examples
 #'

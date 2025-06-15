@@ -3,7 +3,8 @@
 #' Show information about the Signac ChromatinAssays within a Seurat object
 #' @param seurat A Seurat object
 #' @export
-#' @import Seurat
+#' @importFrom Signac Fragments granges
+#' @importFrom SeuratObject Assays
 #' @importFrom GenomicRanges width
 #' @importFrom utils head str
 #'

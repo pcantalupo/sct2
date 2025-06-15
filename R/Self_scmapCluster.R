@@ -7,9 +7,8 @@
 #' @param clustercols Metadata column(s) to use for clustering
 #'
 #' @keywords scmap
-#' @import SingleCellExperiment
 #' @importFrom scmap selectFeatures indexCluster scmapCluster getSankey
-#' @importFrom SummarizedExperiment colData rowData<-
+#' @importFrom SummarizedExperiment colData rowData<- rowData
 #' @importFrom S4Vectors metadata
 #'
 #' @return A list of scmapCluster() objects. A self Sankey plot will be generated

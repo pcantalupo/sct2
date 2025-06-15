@@ -7,7 +7,6 @@
 #' @param colname_for_rows The name used for the column name of the cell rownames
 #'
 #' @export
-#' @import Seurat
 #' @importFrom tibble rownames_to_column
 #' @importFrom magrittr %>%
 #' @importFrom readr write_tsv
