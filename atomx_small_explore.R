@@ -12,11 +12,6 @@ clusters = "Met.to.Lung.Bone_Neighbor.network.expression.space.1_1_cluster_Met.t
 Seurat::Idents(seurat) = celltypes
 
 start <- Sys.time()
-summarize_seurat(seurat)
-end <- Sys.time()
-end - start
-
-start <- Sys.time()
 SeuratInfo(seurat)
 end <- Sys.time()
 end - start
