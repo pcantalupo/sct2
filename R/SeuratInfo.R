@@ -39,38 +39,65 @@ SeuratInfo = function(seurat, metadata = FALSE) {
   print(t(df))
 
 
-  cat("\nAssays:\n")# (default: ", DefaultAssay(seurat), ")")
-  is_v5 = substr(as.character(seurat@version), 1, 1) == "5"
-  default_assay = DefaultAssay(seurat)
-
-  slotinfo = list(); slots = c("counts", "data", "scale.data")
-  chromatin_info = list()
-
+  # Assays
+  cat("\nAssays:\n")
   assays = names(seurat@assays)
-  for (assay in assays) {
-    defaultassay = ifelse (default_assay == assay, "YES", "")
-
-    # Get dimensions efficiently without returning full matrices
-    dims = sapply(slots, function(slot) {
-      tryCatch({
-        if (is_v5) {
-          layer_data = LayerData(seurat, layer = slot, assay = assay)
-        } else {
-          layer_data = GetAssayData(seurat, layer = slot, assay = assay)
-        }
-        paste0(nrow(layer_data), "x", ncol(layer_data))
-      }, error = function(e) {
-        "0x0"  # Handle missing slots gracefully
-      })
+  default_assay = DefaultAssay(seurat)
+  
+  # get the dimension string for a slot in an assay object (i.e. "6182x198075")
+  get_layer_dim = function(asy, slot_name) {
+    tryCatch({
+      sn = slotNames(asy)
+      lyr = NULL
+      
+      # v5: layers slot
+      if ("layers" %in% sn && !is.null(asy@layers[[slot_name]])) {
+        lyr = asy@layers[[slot_name]]
+      }
+      # v3/v4: direct slot
+      else if (slot_name %in% sn) {
+        lyr = slot(asy, slot_name)
+      }
+      
+      if (is.null(lyr)) return("0x0")
+      
+      # dim() if possible
+      d = tryCatch(dim(lyr), error = function(e) NULL)
+      if (!is.null(d) && length(d) == 2) {
+        return(paste0(d[1], "x", d[2]))
+      }
+      
+      # SCE fallback
+      if (inherits(lyr, "SingleCellExperiment")) {
+        a = SummarizedExperiment::assayNames(lyr)
+        use = if ("counts" %in% a) "counts" else a[1]
+        d = dim(SummarizedExperiment::assay(lyr, use))
+        return(paste0(d[1], "x", d[2]))
+      }
+      
+      "unknown"
+    }, error = function(e) {
+      paste0("ERROR:", gsub("\n"," ", conditionMessage(e)))
     })
-
+  }
+  
+  slotinfo = list(); slots = c("counts", "data", "scale.data")
+  assay = "RNA"
+  for (assay in assays) {
+    asy = seurat@assays[[assay]]  # get the Assay object
+    sn = slotNames(asy)           # get the slot names for this object
+    
+    defaultassay = ifelse (default_assay == assay, "YES", "")
+    
+    dims = sapply(slots, function(slot) get_layer_dim(asy, slot))
+    
     hvgs = length(VariableFeatures(seurat, assay = assay))
-
+    
     slotinfo[[assay]] = c(defaultassay, dims, hvgs)
   }
-
+  
   df = data.frame(do.call(rbind, slotinfo))
-  colnames(df) = c("default", "counts", "data", "scale.data", "HVGs")
+  colnames(df) = c("default", slots, "HVGs")
   print(df)
 }
 

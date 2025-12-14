@@ -1,4 +1,4 @@
-pacman::p_load(nvutils, sct2, qs2, Seurat, tidyverse)
+pacman::p_load(nvutils, qs2, Seurat, tidyverse)
 
 seurat = readRDS("atomx_small.rds")
 # RNA assay has data slot BUT it is NOT normalized
