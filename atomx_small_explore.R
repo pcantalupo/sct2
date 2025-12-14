@@ -1,5 +1,4 @@
 pacman::p_load(nvutils, sct2, qs2, Seurat, tidyverse)
-source("summarize_seurat.R")
 
 seurat = readRDS("atomx_small.rds")
 # RNA assay has data slot BUT it is NOT normalized
@@ -17,6 +16,13 @@ start <- Sys.time()
 summarize_seurat(seurat)
 end <- Sys.time()
 end - start
+
+start <- Sys.time()
+SeuratInfo(seurat)
+end <- Sys.time()
+end - start
+
+
 
 seurat
 
