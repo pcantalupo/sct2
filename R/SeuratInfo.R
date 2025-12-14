@@ -13,56 +13,70 @@
 SeuratInfo = function(seurat, metadata = FALSE) {
   cat("Seurat version: ", as.character(seurat@version), "\n")
 
+  # Metadata
   if (metadata) {
     cat("\nMetadata: ")
     cat(str(seurat[[]]))
   }
 
+  # Graphs
   cat(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
 
+  # Reductions
   assayused = sapply(names(seurat@reductions), function(name) {
     return(seurat[[name]]@assay.used)
   })
   cat(paste0("\nReductions: ", paste(names(assayused), " (", assayused, ")", sep = "",
                                      collapse = ", ")))
 
+  # Images
   if (length(seurat@images) > 0) {
     cat("\nImages: ", paste(names(seurat@images), collapse = ", "))
   }
 
+  # Idents
   cat("\nIdent label:", FindIdentLabel(seurat))
-
   cat("\nIdents():\n")
-  tab = table(Idents(seurat))    #print(table(Idents(seurat)))   # stored in pbmc@active.ident; can also use levels(seurat)
+  tab = table(Idents(seurat))
   df = data.frame(Count = as.integer(tab))
   rownames(df) = rownames(tab)
   print(t(df))
 
-
-  cat("\nAssays:\n")# (default: ", DefaultAssay(seurat), ")")
-  is_v5 = substr(as.character(seurat@version), 1, 1) == "5"
+  # Assays
+  cat("\nAssays:\n")
+  assays = names(seurat@assays)
   default_assay = DefaultAssay(seurat)
 
-  slotinfo = list(); slots = c("counts", "data", "scale.data")
-  chromatin_info = list()
+  # get the dimension string for a slot in an assay object (i.e. "6182x198075")
+  get_layer_dim = function(assay_obj, slot) {
+    slotnames = slotNames(assay_obj)
+    layer = NULL
+    if ("layers" %in% slotnames) {   # v5 layers slot
+      layer = assay_obj@layers[[slot]]
+    }
+    else if (slot %in% slotnames) {  # v4 direct slot
+      layer = slot(assay_obj, slot)
+    }
 
-  assays = names(seurat@assays)
+    if (is.null(layer)) {
+      dim_string = "0x0"
+    } else {
+      dims = dim(layer)
+      dim_string = paste0(dims[1], "x", dims[2])
+    }
+
+    return(dim_string)
+  }
+
+  slotinfo = list()
+  slots = c("counts", "data", "scale.data")
+  assay = "RNA"
   for (assay in assays) {
+    assay_obj = seurat@assays[[assay]]  # get the Assay object
+
     defaultassay = ifelse (default_assay == assay, "YES", "")
 
-    # Get dimensions efficiently without returning full matrices
-    dims = sapply(slots, function(slot) {
-      tryCatch({
-        if (is_v5) {
-          layer_data = LayerData(seurat, layer = slot, assay = assay)
-        } else {
-          layer_data = GetAssayData(seurat, layer = slot, assay = assay)
-        }
-        paste0(nrow(layer_data), "x", ncol(layer_data))
-      }, error = function(e) {
-        "0x0"  # Handle missing slots gracefully
-      })
-    })
+    dims = sapply(slots, function(slot) get_layer_dim(assay_obj, slot))
 
     hvgs = length(VariableFeatures(seurat, assay = assay))
 
@@ -70,7 +84,7 @@ SeuratInfo = function(seurat, metadata = FALSE) {
   }
 
   df = data.frame(do.call(rbind, slotinfo))
-  colnames(df) = c("default", "counts", "data", "scale.data", "HVGs")
+  colnames(df) = c("default", slots, "HVGs")
   print(df)
 }
 
