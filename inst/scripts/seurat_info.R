@@ -3,7 +3,10 @@ pacman::p_load('optparse')
 
 ##################### Options ########################
 option_list=list(
-  make_option("--seuratrds", default="", type="character", help="Seurat object [required; default: %default]")
+  make_option("--seuratrds",
+              default="",
+              type="character",
+              help="Seurat object RDS or QS2 [required; default: %default]")
 )
 opt_parser <- OptionParser(option_list=option_list)
 opts <- parse_args(opt_parser)
@@ -13,12 +16,16 @@ if (opts$seuratrds == "") {
   print_help(opt_parser)
   quit(status=1)
 }
+####################################################
 
-pacman::p_load('Seurat', 'sct2')
+pacman::p_load(qs2, sct2, Seurat)
 
-seurat = readRDS(opts$seuratrds)
+# Detect file format and read appropriately
+if (grepl("\\.qs2?$", opts$seuratrds, ignore.case = TRUE)) {
+  seurat = qs_read(opts$seuratrds)
+} else {
+  seurat = readRDS(opts$seuratrds)
+}
 SeuratInfo(seurat)
 
-message("\nIdentLabel:")
-FindIdentLabel(seurat)
 
