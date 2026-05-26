@@ -8,9 +8,9 @@ option_list=list(
               type="character",
               help="Seurat object RDS or QS2 [required; default: %default]"),
   make_option("--metadata",
-              default="",
-              type="character",
-              help="Save metadata to this TSV file [optional; default: %default]")
+              action="store_true",
+              default=FALSE,
+              help="Show metadata [optional; default: %default]")
 )
 opt_parser <- OptionParser(option_list=option_list)
 opts <- parse_args(opt_parser)
@@ -30,10 +30,6 @@ if (grepl("\\.qs2?$", opts$seuratrds, ignore.case = TRUE)) {
 } else {
   seurat = readRDS(opts$seuratrds)
 }
-SeuratInfo(seurat)
-
-if (opts$metadata != "") {
-  SaveMetadata(seurat, opts$metadata)
-}
+SeuratInfo(seurat, metadata = opts$metadata)
 
 
