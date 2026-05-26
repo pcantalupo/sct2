@@ -26,6 +26,23 @@ FindIdentLabel(pbmc_small)
 SaveMetadata(pbmc_small, file = "metadata.tsv")
 ```
 
+## Command-line scripts
+
+Scripts are in `inst/scripts/` and can be copied to `~/bin/` with `install_to_bin.sh`.
+
+**seurat_info.R** — print a summary of a Seurat object (RDS or QS2)
+
+```bash
+seurat_info.R --seuratrds object.rds
+seurat_info.R --seuratrds object.qs2
+```
+
+**seurat_save_metadata.R** — save Seurat metadata to a TSV file
+
+```bash
+seurat_save_metadata.R --seuratrds object.rds --outfile metadata.tsv
+```
+
 ## Functions
 
 | Function | Description |
