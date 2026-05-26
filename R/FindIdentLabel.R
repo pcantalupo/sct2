@@ -14,10 +14,13 @@
 #'
 FindIdentLabel <- function(seurat) {
   ident.label <- as.character(Idents(seurat))
-  labels <- sapply(colnames(seurat@meta.data),
-                   function(x) all(ident.label == seurat@meta.data[,x])) %>% .[.] %>% .[!is.na(.)]
+  chr_cols <- colnames(seurat@meta.data)[
+    sapply(seurat@meta.data, function(x) is.character(x) || is.factor(x))
+  ]
+  labels <- sapply(chr_cols,
+                   function(x) all(ident.label == as.character(seurat@meta.data[, x]))) %>% .[.] %>% .[!is.na(.)]
   label <- names(labels[labels])
-  label = label[!(label %in% c("seurat_clusters","ident"))][1]
+  label = label[!(label %in% c("seurat_clusters", "ident"))][1]
   return(label)
 }
 
