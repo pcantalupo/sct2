@@ -8,6 +8,24 @@ Helper functions for single cell transcriptomics analysis in R.
 devtools::install_github("pcantalupo/sct2")
 ```
 
+## Usage
+
+```r
+library(sct2)
+
+# Summarize a Seurat object
+SeuratInfo(pbmc_small)
+
+# Summarize Signac ChromatinAssays
+SignacInfo(multiome_small)
+
+# Find the metadata column matching the active ident
+FindIdentLabel(pbmc_small)
+
+# Save metadata to TSV
+SaveMetadata(pbmc_small, file = "metadata.tsv")
+```
+
 ## Functions
 
 | Function | Description |
