@@ -10,7 +10,8 @@
 #'
 FixClusterFactorLevels <- function(seurat) {
   pattern <- "snn_res"
-  cluster_resolutions <- grep(pattern, colnames(seurat@meta.data), value = TRUE)
+  all_cols <- grep(pattern, colnames(seurat@meta.data), value = TRUE)
+  cluster_resolutions <- all_cols[sapply(seurat@meta.data[all_cols], is.factor)]
 
   for (clusters in cluster_resolutions) {
     origfactor = seurat[[]][,clusters]
