@@ -1,3 +1,7 @@
+# sct2 0.2.3
+
+- Fix `FixClusterFactorLevels` to skip non-factor `snn_res` columns (e.g. score columns)
+
 # sct2 0.2.2
 
 - Add `--metadata` flag to `seurat_info.R` to display metadata via `SeuratInfo()`
