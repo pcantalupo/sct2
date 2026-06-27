@@ -1,3 +1,10 @@
+# sct2 0.3.0
+
+- Add `seurat_downsample.R` and `seurat_update_object.R` command-line scripts
+- Add `ReadSeurat()` and `WriteSeurat()` functions and refactor scripts to use them
+- `ReadSeurat()` now errors if the loaded object is not a Seurat object
+- Standardize command-line script flags to `--seurat` (input) and `--outfile` (output) across all four scripts, replacing `--seuratrds`, `--input`, and `--output`
+
 # sct2 0.2.3
 
 - Fix `FixClusterFactorLevels` to skip non-factor `snn_res` columns (e.g. score columns)
