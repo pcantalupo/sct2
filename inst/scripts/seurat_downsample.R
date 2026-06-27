@@ -66,31 +66,6 @@ if (!is.null(opts$ncells)) {
 print(opts)
 
 
-############### Helper functions ###############
-# Pick reader/writer by file extension; both formats supported on either side.
-read_obj <- function(path) {
-  ext <- tolower(tools::file_ext(path))
-  if (ext == "qs2") {
-    return(qs2::qs_read(path))
-  } else if (ext == "rds") {
-    return(readRDS(path))
-  } else {
-    stop("Unsupported extension '.", ext, "' (expected .qs2 or .rds)")
-  }
-}
-
-write_obj <- function(seurat, path) {
-  ext <- tolower(tools::file_ext(path))
-  if (ext == "qs2") {
-    qs2::qs_save(seurat, path)
-  } else if (ext == "rds") {
-    saveRDS(seurat, path)
-  } else {
-    stop("Unsupported extension '.", ext, "' (expected .qs2 or .rds)")
-  }
-}
-
-
 # Resolve the output path (and the _ds<tag>) before the expensive load so a
 # clobber is caught immediately.
 output <- opts$output
@@ -113,10 +88,10 @@ if (file.exists(output) && !opts$force) {
 
 
 ################# RUN #######################
-pacman::p_load(qs2, Seurat)
+pacman::p_load(sct2, Seurat)
 
 message("\nLoading ", opts$seurat)
-seurat <- read_obj(opts$seurat)
+seurat <- ReadSeurat(opts$seurat)
 if (!inherits(seurat, "Seurat")) {
   stop("Loaded object is not a Seurat object (class: ", paste(class(seurat), collapse = ", "), ")")
 }
@@ -146,7 +121,7 @@ seurat <- subset(seurat, cells = keep)
 print(seurat)
 
 message("\nSaving to ", output)
-write_obj(seurat, output)
+WriteSeurat(seurat, output)
 
 message("\nDone.")
 

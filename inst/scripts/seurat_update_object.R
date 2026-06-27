@@ -49,39 +49,14 @@ print(opts)
 ######################################################
 
 
-pacman::p_load(qs2, Seurat)
-
-
-############### Helper functions ###############
-# Pick reader/writer by file extension; both formats supported on either side.
-read_obj <- function(path) {
-  ext <- tolower(tools::file_ext(path))
-  if (ext == "qs2") {
-    return(qs2::qs_read(path))
-  } else if (ext == "rds") {
-    return(readRDS(path))
-  } else {
-    stop("Unsupported input extension '.", ext, "' (expected .qs2 or .rds)")
-  }
-}
-
-write_obj <- function(seurat, path) {
-  ext <- tolower(tools::file_ext(path))
-  if (ext == "qs2") {
-    qs2::qs_save(seurat, path)
-  } else if (ext == "rds") {
-    saveRDS(seurat, path)
-  } else {
-    stop("Unsupported output extension '.", ext, "' (expected .qs2 or .rds)")
-  }
-}
+pacman::p_load(sct2, Seurat)
 
 
 ################# RUN #######################
 message("\nInstalled SeuratObject: ", packageVersion("SeuratObject"))
 
 message("\nLoading ", opts$input)
-seurat <- read_obj(opts$input)
+seurat <- ReadSeurat(opts$input)
 if (!inherits(seurat, "Seurat")) {
   stop("Loaded object is not a Seurat object (class: ", paste(class(seurat), collapse = ", "), ")")
 }
@@ -112,7 +87,7 @@ if (opts$check) {
 }
 
 message("\nSaving updated object to ", output)
-write_obj(seurat, output)
+WriteSeurat(seurat, output)
 
 message("\nDone.")
 

@@ -21,13 +21,9 @@ check_params(opts$outfile, "--outfile")
 
 #####################################################
 
-pacman::p_load(qs2, sct2)
+pacman::p_load(sct2)
 
-if (grepl("\\.qs2?$", opts$seuratrds, ignore.case = TRUE)) {
-  seurat = qs_read(opts$seuratrds)
-} else {
-  seurat = readRDS(opts$seuratrds)
-}
+seurat <- ReadSeurat(opts$seuratrds)
 SaveMetadata(seurat, opts$outfile)
 
 cat("\n\n")

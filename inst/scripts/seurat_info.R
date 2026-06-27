@@ -22,14 +22,9 @@ if (opts$seuratrds == "") {
 }
 ####################################################
 
-pacman::p_load(qs2, sct2, Seurat)
+pacman::p_load(sct2)
 
-# Detect file format and read appropriately
-if (grepl("\\.qs2?$", opts$seuratrds, ignore.case = TRUE)) {
-  seurat = qs_read(opts$seuratrds)
-} else {
-  seurat = readRDS(opts$seuratrds)
-}
+seurat <- ReadSeurat(opts$seuratrds)
 SeuratInfo(seurat, metadata = opts$metadata)
 
 
