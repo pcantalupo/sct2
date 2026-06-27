@@ -14,12 +14,17 @@
 ReadSeurat <- function(path) {
   ext <- tolower(tools::file_ext(path))
   if (ext == "qs2") {
-    return(qs2::qs_read(path))
+    seurat <- qs2::qs_read(path)
   } else if (ext == "rds") {
-    return(readRDS(path))
+    seurat <- readRDS(path)
   } else {
     stop("Unsupported extension '.", ext, "' (expected .rds or .qs2)")
   }
+  if (!inherits(seurat, "Seurat")) {
+    stop("Loaded object is not a Seurat object (class: ",
+         paste(class(seurat), collapse = ", "), ")")
+  }
+  return(seurat)
 }
 
 #' @title WriteSeurat

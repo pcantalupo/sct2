@@ -3,7 +3,7 @@ pacman::p_load('optparse')
 
 ##################### Options ########################
 option_list=list(
-  make_option("--seuratrds",
+  make_option("--seurat",
               default="",
               type="character",
               help="Seurat object RDS or QS2 [required; default: %default]"),
@@ -15,8 +15,8 @@ option_list=list(
 opt_parser <- OptionParser(option_list=option_list)
 opts <- parse_args(opt_parser)
 
-if (opts$seuratrds == "") {
-  message("\nError: --seuratrds parameter is required.")
+if (opts$seurat == "") {
+  message("\nError: --seurat parameter is required.")
   print_help(opt_parser)
   quit(status=1)
 }
@@ -24,7 +24,7 @@ if (opts$seuratrds == "") {
 
 pacman::p_load(sct2)
 
-seurat <- ReadSeurat(opts$seuratrds)
+seurat <- ReadSeurat(opts$seurat)
 SeuratInfo(seurat, metadata = opts$metadata)
 
 

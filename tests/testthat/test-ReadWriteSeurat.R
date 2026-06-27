@@ -20,6 +20,13 @@ test_that("ReadSeurat errors on unsupported extension", {
   expect_error(ReadSeurat("object.txt"), "Unsupported")
 })
 
+test_that("ReadSeurat errors when the file is not a Seurat object", {
+  path <- tempfile(fileext = ".rds")
+  on.exit(unlink(path))
+  saveRDS(data.frame(x = 1:3), path)
+  expect_error(ReadSeurat(path), "not a Seurat object")
+})
+
 test_that("WriteSeurat errors on unsupported extension", {
   expect_error(WriteSeurat(pbmc_small, "object.txt"), "Unsupported")
 })

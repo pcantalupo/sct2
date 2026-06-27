@@ -28,12 +28,12 @@ option_list <- list(
               help = "Absolute number of cells to retain; mutually exclusive with --downsample [default: %default]"),
   make_option("--seed", type = "integer", default = 1976,
               help = "RNG seed for sampling [default: %default]"),
-  make_option("--output", type = "character", default = NULL,
+  make_option("--outfile", type = "character", default = NULL,
               help = "Output path; format inferred from extension [default: input with a _ds<tag>]"),
   make_option("--update", action = "store_true", default = FALSE,
               help = "Run UpdateSeuratObject() before subsetting (for objects written under an older SeuratObject) [default: %default]"),
   make_option("--force", action = "store_true", default = FALSE,
-              help = "Overwrite --output if it already exists [default: %default]")
+              help = "Overwrite --outfile if it already exists [default: %default]")
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
@@ -68,7 +68,7 @@ print(opts)
 
 # Resolve the output path (and the _ds<tag>) before the expensive load so a
 # clobber is caught immediately.
-output <- opts$output
+output <- opts$outfile
 if (is.null(output)) {
   base <- tools::file_path_sans_ext(opts$seurat)
   ext <- tools::file_ext(opts$seurat)
@@ -83,7 +83,7 @@ if (is.null(output)) {
 }
 
 if (file.exists(output) && !opts$force) {
-  stop("--output already exists: ", output, " (pass --force to overwrite)")
+  stop("--outfile already exists: ", output, " (pass --force to overwrite)")
 }
 
 
@@ -92,9 +92,6 @@ pacman::p_load(sct2, Seurat)
 
 message("\nLoading ", opts$seurat)
 seurat <- ReadSeurat(opts$seurat)
-if (!inherits(seurat, "Seurat")) {
-  stop("Loaded object is not a Seurat object (class: ", paste(class(seurat), collapse = ", "), ")")
-}
 
 if (opts$update) {
   message("Running UpdateSeuratObject()")

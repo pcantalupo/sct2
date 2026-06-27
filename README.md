@@ -30,18 +30,37 @@ SaveMetadata(pbmc_small, file = "metadata.tsv")
 
 Scripts are in `inst/scripts/` and can be copied to `~/bin/` with `install_to_bin.sh`.
 
-**seurat_info.R** — print a summary of a Seurat object (RDS or QS2)
+All scripts read `.rds`/`.RDS` or `.qs2`, inferred from the file extension.
+
+**seurat_info.R** — print a summary of a Seurat object
 
 ```bash
-seurat_info.R --seuratrds object.rds
-seurat_info.R --seuratrds object.qs2
+seurat_info.R --seurat object.qs2
+seurat_info.R --seurat object.qs2 --metadata   # also show metadata structure
 ```
 
 **seurat_save_metadata.R** — save Seurat metadata to a TSV file
 
 ```bash
-seurat_save_metadata.R --seuratrds object.rds --outfile metadata.tsv
+seurat_save_metadata.R --seurat object.qs2 --outfile metadata.tsv
 ```
+
+**seurat_downsample.R** — randomly downsample cells and write a new object
+
+```bash
+seurat_downsample.R --seurat object.qs2 --downsample 0.05   # keep 5% of cells
+seurat_downsample.R --seurat object.qs2 --ncells 50000      # keep 50k cells
+```
+
+Default output adds a `_ds<tag>` next to the input (`--outfile` to override). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
+
+**seurat_update_object.R** — run `UpdateSeuratObject()` and save
+
+```bash
+seurat_update_object.R --seurat object.qs2 --outfile object_updated.qs2
+```
+
+Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`.
 
 ## Functions
 

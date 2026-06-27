@@ -14,34 +14,34 @@
 # the newer SeuratObject migrates the FOV/Centroids to the current layout.
 #
 # Reads/writes .qs2 (qs2::qs_read/qs_save) or .rds/.RDS (readRDS/saveRDS);
-# format is inferred per-file from the extension, so --output can also convert.
+# format is inferred per-file from the extension, so --outfile can also convert.
 ###############################################################################
 
 ################# Options ######################
 pacman::p_load(optparse)
 
 option_list <- list(
-  make_option("--input", type = "character", default = NULL,
+  make_option("--seurat", type = "character", default = NULL,
               help = "Path to the input Seurat object (.qs2 or .rds/.RDS) [required]"),
-  make_option("--output", type = "character", default = NULL,
-              help = "Path to write the updated object; format inferred from extension. [default: overwrite --input in place]"),
+  make_option("--outfile", type = "character", default = NULL,
+              help = "Path to write the updated object; format inferred from extension. [default: overwrite --seurat in place]"),
   make_option("--check", type = "logical", default = TRUE,
               help = "After updating, subset the first 100 cells to confirm the FOV validates [default: %default]")
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
 
-if (is.null(opts$input)) {
-  stop("--input is required")
+if (is.null(opts$seurat)) {
+  stop("--seurat is required")
 }
-if (!file.exists(opts$input)) {
-  stop("--input file not found: ", opts$input)
+if (!file.exists(opts$seurat)) {
+  stop("--seurat file not found: ", opts$seurat)
 }
 
-output <- opts$output
+output <- opts$outfile
 if (is.null(output)) {
-  output <- opts$input
-  message("NOTE: --output not given; overwriting --input in place:\n  ", output)
+  output <- opts$seurat
+  message("NOTE: --outfile not given; overwriting --seurat in place:\n  ", output)
 }
 
 print(opts)
@@ -55,11 +55,8 @@ pacman::p_load(sct2, Seurat)
 ################# RUN #######################
 message("\nInstalled SeuratObject: ", packageVersion("SeuratObject"))
 
-message("\nLoading ", opts$input)
-seurat <- ReadSeurat(opts$input)
-if (!inherits(seurat, "Seurat")) {
-  stop("Loaded object is not a Seurat object (class: ", paste(class(seurat), collapse = ", "), ")")
-}
+message("\nLoading ", opts$seurat)
+seurat <- ReadSeurat(opts$seurat)
 message("Object @version before update: ", seurat@version)
 
 message("\nRunning UpdateSeuratObject()")

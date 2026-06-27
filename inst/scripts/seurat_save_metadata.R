@@ -3,7 +3,7 @@ pacman::p_load('optparse')
 
 ##################### Options ########################
 option_list=list(
-  make_option("--seuratrds", default="", type="character", help="Seurat object [required; default: %default]"),
+  make_option("--seurat", default="", type="character", help="Seurat object [required; default: %default]"),
   make_option("--outfile", default="", type="character", help="Output filename to save Seurat metadata [required; default: %default]")
 )
 opt_parser <- OptionParser(option_list=option_list)
@@ -16,14 +16,14 @@ check_params = function(opt, name) {
   }
 }
 
-check_params(opts$seuratrds, "--seuratrds")
+check_params(opts$seurat, "--seurat")
 check_params(opts$outfile, "--outfile")
 
 #####################################################
 
 pacman::p_load(sct2)
 
-seurat <- ReadSeurat(opts$seuratrds)
+seurat <- ReadSeurat(opts$seurat)
 SaveMetadata(seurat, opts$outfile)
 
 cat("\n\n")
