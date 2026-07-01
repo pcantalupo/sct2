@@ -1,7 +1,7 @@
 Package: sct2
 Type: Package
 Title: Helper Functions for Single Cell Transcriptomics (SCT)
-Version: 0.3.0
+Version: 0.3.1
 Author: Paul Cantalupo
 Maintainer: <pcantalupo@gmail.com>
 Description: Helper functions for analyzing SCT data.

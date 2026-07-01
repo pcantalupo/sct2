@@ -1,3 +1,7 @@
+# sct2 0.3.1
+
+- Add `seurat_dimplot_celltype-cluster.R` command-line script: UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column
+
 # sct2 0.3.0
 
 - Add `seurat_downsample.R` and `seurat_update_object.R` command-line scripts
