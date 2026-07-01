@@ -62,6 +62,14 @@ seurat_update_object.R --seurat object.qs2 --outfile object_updated.qs2
 
 Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`.
 
+**seurat_dimplot_celltype-cluster.R** — UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column so every cluster of a celltype shares that celltype's color while staying individually labeled
+
+```bash
+seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster_labels --cluster RNA_snn_res.0.8
+```
+
+Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, the filename with `--outputfile`, and pass `--repel` to repel the cluster labels.
+
 ## Functions
 
 | Function | Description |
