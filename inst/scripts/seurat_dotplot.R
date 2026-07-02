@@ -5,9 +5,9 @@ pdf(NULL)
 
 # Define the options
 option_list <- list(
-  make_option(c("-s", "--seuratrds"), type="character", default=NULL,
-              help="Path to the Seurat RDS [required]"),
-  make_option(c("-m", "--markersrds"), type="character", default="rds/markers.rds",
+  make_option(c("-s", "--seurat"), type="character", default=NULL,
+              help="Path to the input Seurat object (.qs2 or .rds/.RDS) [required]"),
+  make_option(c("-m", "--markers"), type="character", default="rds/markers.rds",
               help="Path to the markers RDS [required]"),
   make_option(c("-i", "--idents"), type="character", default="RNA_snn_res.0.8",
               help="Metadata field to use to set the Seurat Idents [default: %default]"),
@@ -56,23 +56,16 @@ if (is.null(opts$markers) || opts$markers == "") {
 # }
 # message("Output file name is: ", opts$output_path); message("\n")
 
-pacman::p_load(Seurat, ggplot2, qs2, dplyr)
+pacman::p_load(sct2, Seurat, ggplot2, dplyr)
 
 
 # Load data
-# Determine Seurat file type and read accordingly
-if (grepl("\\.qs2$", opts$seurat, ignore.case = TRUE)) {
-  seurat <- qs_read(opts$seurat)
-} else if (grepl("\\.rds$", opts$seurat, ignore.case = TRUE)) {
-  seurat <- readRDS(opts$seurat)
-} else {
-  stop("Input file must be either .rds or .qs2 format")
-}
+seurat <- ReadSeurat(opts$seurat)
 markers <- readRDS(opts$markers)
 
 # Set cell type identities
 Idents(seurat) <- opts$idents
-DefaultAssay(seurat) = "RNA"
+DefaultAssay(seurat) <- "RNA"
 
 # Select top n genes
 top <- markers %>%
@@ -83,19 +76,20 @@ top <- markers %>%
 
 # Create plot and save as PNG
 #   need to use "guides" to change the legend title ('name' param in scale_color_gradientn does not work)
-gg = DotPlot(seurat, features = unique(top$gene)) + coord_flip() +
+gg <- DotPlot(seurat, features = unique(top$gene)) + coord_flip() +
   guides(color = guide_colorbar(title = 'Scaled avg expr')) +
-  scale_color_gradientn(colors = c("dodgerblue", "yellow", "indianred")) + 
+  scale_color_gradientn(colors = c("dodgerblue", "yellow", "indianred")) +
   ggtitle(opts$title)
 
 if (!is.null(opts$labelsize)) {  # I think the default ggplot size is 11
-  gg = gg + theme(axis.text.y = element_text(size = opts$labelsize)) #theme(text = element_text(size = 4))
+  gg <- gg + theme(axis.text.y = element_text(size = opts$labelsize)) #theme(text = element_text(size = 4))
 }
 if (!is.null(opts$rotatelabels)) {
-  gg = gg + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  gg <- gg + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 }
 gg
 ggsave(opts$output_path, width = opts$width, height = opts$height, bg = "white")
 
 
-sessionInfo()
+cat("\n\n")
+devtools::session_info()
