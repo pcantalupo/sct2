@@ -70,6 +70,14 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster
 
 Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, the filename with `--outputfile`, and pass `--repel` to repel the cluster labels.
 
+**seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
+
+```bash
+seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.0.8 --n_top_genes 5
+```
+
+`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents`, the number of genes per cluster with `--n_top_genes`, and the output PNG with `--output_path`.
+
 ## Functions
 
 | Function | Description |
