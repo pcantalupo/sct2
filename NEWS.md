@@ -1,3 +1,7 @@
+# sct2 0.3.2
+
+- Add `seurat_dotplot.R` command-line script: DotPlot of the top up-regulated genes per cluster from a markers table
+
 # sct2 0.3.1
 
 - Add `seurat_dimplot_celltype-cluster.R` command-line script: UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column
