@@ -60,6 +60,7 @@ pacman::p_load(sct2, Seurat, ggplot2, dplyr)
 
 
 # Load data
+message("\nLoading Seurat: ", opts$seurat)
 seurat <- ReadSeurat(opts$seurat)
 markers <- readRDS(opts$markers)
 
@@ -76,6 +77,7 @@ top <- markers %>%
 
 # Create plot and save as PNG
 #   need to use "guides" to change the legend title ('name' param in scale_color_gradientn does not work)
+message("\nCreating DotPlot")
 gg <- DotPlot(seurat, features = unique(top$gene)) + coord_flip() +
   guides(color = guide_colorbar(title = 'Scaled avg expr')) +
   scale_color_gradientn(colors = c("dodgerblue", "yellow", "indianred")) +
