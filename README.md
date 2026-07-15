@@ -70,6 +70,14 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster
 
 Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, the filename with `--outputfile`, and pass `--repel` to repel the cluster labels.
 
+**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend.
+
+```bash
+seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 --colorby orig.ident
+```
+
+Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, the output path with `--outputfile`, and toggle cluster labels with `--label`/`--label_size`/`--repel`.
+
 **seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
 
 ```bash
