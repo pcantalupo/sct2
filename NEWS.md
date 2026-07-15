@@ -1,3 +1,9 @@
+# sct2 0.3.3
+
+- Add `seurat_dimplot_splitby-colorby.R` command-line script: split UMAP DimPlot (one panel per `--splitby` value) colored by a `--colorby` metadata column
+- Add progress messages to `seurat_dotplot.R`
+- Remove `install_to_bin.sh`; scripts are now symlinked from `bin/` directly
+
 # sct2 0.3.2
 
 - Add `seurat_dotplot.R` command-line script: DotPlot of the top up-regulated genes per cluster from a markers table
