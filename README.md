@@ -62,6 +62,15 @@ seurat_update_object.R --seurat object.qs2 --outfile object_updated.qs2
 
 Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`.
 
+**seurat_strip_scaledata.R** — drop `scale.data` from every assay and save
+
+```bash
+seurat_strip_scaledata.R --seurat object.qs2                              # overwrite in place
+seurat_strip_scaledata.R --seurat object.qs2 --outfile object_slim.qs2    # write elsewhere
+```
+
+Without `--outfile`, the input is overwritten in place; `--force` overwrites an existing `--outfile`. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`. Removes all `scale.data*` layers from v5 assays and clears the `@scale.data` slot of v3 assays.
+
 **seurat_dimplot_celltype-cluster.R** — UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column so every cluster of a celltype shares that celltype's color while staying individually labeled
 
 ```bash
