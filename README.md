@@ -75,9 +75,11 @@ Without `--outfile`, the input is overwritten in place; `--force` overwrites an 
 
 ```bash
 seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster_labels --cluster RNA_snn_res.0.8
+seurat_dimplot_celltype-cluster.R --seurat object.qs2 --downsample 0.1   # plot 10% of cells
+seurat_dimplot_celltype-cluster.R --seurat object.qs2 --ncells 50000     # plot 50k cells
 ```
 
-Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, the filename with `--outputfile`, and pass `--repel` to repel the cluster labels.
+Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, the filename with `--outputfile`, and pass `--repel` to repel the cluster labels. `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and draw a uniform random subset of cells with a fixed `--seed` (default 1976); the object is not subset, only the plotted cells, and the cell count is noted in the plot subtitle.
 
 **seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend.
 
