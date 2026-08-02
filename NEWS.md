@@ -1,3 +1,9 @@
+# sct2 0.3.4
+
+- Add `seurat_strip_scaledata.R` command-line script
+- Add `--downsample`, `--ncells`, and `--seed` flags to `seurat_dimplot_celltype-cluster.R` to plot a random subset of cells without subsetting the object
+- Add a test covering `FixClusterFactorLevels` releveling of out-of-order cluster levels
+
 # sct2 0.3.3
 
 - Add `seurat_dimplot_splitby-colorby.R` command-line script: split UMAP DimPlot (one panel per `--splitby` value) colored by a `--colorby` metadata column
