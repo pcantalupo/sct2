@@ -4,7 +4,7 @@ pacman::p_load('optparse')
 ##################### Options ########################
 option_list=list(
   make_option("--seurat", default="", type="character", help="Seurat object [required; default: %default]"),
-  make_option("--outfile", default="", type="character", help="Output filename to save Seurat metadata [required; default: %default]")
+  make_option("--outfile", default="", type="character", help="Output filename to save Seurat metadata. Format is set by the extension: .rds and .qs2 preserve factor levels and column classes, anything else is written as TSV [required; default: %default]")
 )
 opt_parser <- OptionParser(option_list=option_list)
 opts <- parse_args(opt_parser)

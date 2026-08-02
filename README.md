@@ -22,8 +22,9 @@ SignacInfo(multiome_small)
 # Find the metadata column matching the active ident
 FindIdentLabel(pbmc_small)
 
-# Save metadata to TSV
+# Save metadata to TSV, or to RDS/QS2 to preserve factor levels and column classes
 SaveMetadata(pbmc_small, file = "metadata.tsv")
+SaveMetadata(pbmc_small, file = "metadata.rds")
 ```
 
 ## Command-line scripts
@@ -39,10 +40,11 @@ seurat_info.R --seurat object.qs2
 seurat_info.R --seurat object.qs2 --metadata   # also show metadata structure
 ```
 
-**seurat_save_metadata.R** — save Seurat metadata to a TSV file
+**seurat_save_metadata.R** — save Seurat metadata to a TSV, RDS or QS2 file
 
 ```bash
 seurat_save_metadata.R --seurat object.qs2 --outfile metadata.tsv
+seurat_save_metadata.R --seurat object.qs2 --outfile metadata.rds   # preserves factor levels and column classes
 ```
 
 **seurat_downsample.R** — randomly downsample cells and write a new object
@@ -104,7 +106,7 @@ seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.
 | `SeuratInfo()` | Summarize a Seurat object (idents, metadata, assays, reductions, graphs) |
 | `SignacInfo()` | Summarize Signac ChromatinAssays within a Seurat object |
 | `FindIdentLabel()` | Find the metadata column name that matches the active ident |
-| `SaveMetadata()` | Save Seurat metadata to a TSV file |
+| `SaveMetadata()` | Save Seurat metadata to a TSV, RDS or QS2 file |
 | `FixFragmentPaths()` | Fix paths to ATAC fragment files in a Seurat object |
 | `FixClusterFactorLevels()` | Relevel cluster factors into numerical order |
 | `SelfScmapCluster()` | Map cell types within a single dataset using scmap |

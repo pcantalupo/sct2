@@ -9,16 +9,25 @@ SaveMetadata(seurat, filename, colname_for_rows = "cellid")
 \arguments{
 \item{seurat}{A Seurat object}
 
-\item{filename}{A TSV filename}
+\item{filename}{Output filename (.tsv, .rds or .qs2)}
 
-\item{colname_for_rows}{The name used for the column name of the cell rownames}
+\item{colname_for_rows}{The name used for the column name of the cell
+rownames. TSV output only; RDS and QS2 keep the cell barcodes as rownames.}
+}
+\value{
+Invisibly returns filename
 }
 \description{
-Save the Seurat metadata to a TSV file.
+Save the Seurat metadata to a TSV, RDS or QS2 file. The output format is
+chosen from the filename extension: `.rds` and `.qs2` save the metadata
+data.frame directly (preserving factor levels, column classes and the cell
+barcodes as rownames), any other extension writes a TSV.
 }
 \examples{
 \dontrun{
 SaveMetadata(pbmc_small, "pbmc_small_metadata.tsv")
+SaveMetadata(pbmc_small, "pbmc_small_metadata.rds")
+SaveMetadata(pbmc_small, "pbmc_small_metadata.qs2")
 }
 
 }

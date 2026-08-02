@@ -11,6 +11,7 @@ LazyData: true
 Imports:
     GenomicRanges,
     magrittr,
+    qs2,
     readr,
     S4Vectors,
     scmap,
@@ -18,7 +19,8 @@ Imports:
     SeuratObject,
     Signac,
     SummarizedExperiment,
-    tibble
+    tibble,
+    tools
 RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)
