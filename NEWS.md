@@ -1,3 +1,8 @@
+# sct2 0.3.5
+
+- `SaveMetadata()` picks the output format from the filename extension: `.rds` and `.qs2` save the metadata data.frame directly, preserving factor levels, column classes, and cell barcodes as rownames; any other extension writes a TSV as before. `colname_for_rows` applies to TSV output only
+- Add `qs2` and `tools` to DESCRIPTION Imports
+
 # sct2 0.3.4
 
 - Add `seurat_strip_scaledata.R` command-line script
