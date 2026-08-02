@@ -25,11 +25,15 @@ FindIdentLabel(pbmc_small)
 # Save metadata to TSV, or to RDS/QS2 to preserve factor levels and column classes
 SaveMetadata(pbmc_small, file = "metadata.tsv")
 SaveMetadata(pbmc_small, file = "metadata.rds")
+
+# Read and write Seurat objects; format is inferred from the extension
+WriteSeurat(pbmc_small, "pbmc_small.qs2")
+seurat = ReadSeurat("pbmc_small.qs2")
 ```
 
 ## Command-line scripts
 
-Scripts are in `inst/scripts/` and can be copied to `~/bin/` with `install_to_bin.sh`.
+Scripts are in `inst/scripts/`. Symlink them from a directory on your `PATH` (e.g. `~/bin/`) to run them by name.
 
 All scripts read `.rds`/`.RDS` or `.qs2`, inferred from the file extension.
 
@@ -54,7 +58,7 @@ seurat_downsample.R --seurat object.qs2 --downsample 0.05   # keep 5% of cells
 seurat_downsample.R --seurat object.qs2 --ncells 50000      # keep 50k cells
 ```
 
-Default output adds a `_ds<tag>` next to the input (`--outfile` to override). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
+Default output adds a `_ds<tag>` next to the input (`--outfile` to override). `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and sample with a fixed `--seed` (default 1976). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
 
 **seurat_update_object.R** — run `UpdateSeuratObject()` and save
 
@@ -62,7 +66,7 @@ Default output adds a `_ds<tag>` next to the input (`--outfile` to override). Us
 seurat_update_object.R --seurat object.qs2 --outfile object_updated.qs2
 ```
 
-Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`.
+Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`. After updating, the first 100 cells are subset to confirm the FOV validates; disable with `--check FALSE`.
 
 **seurat_strip_scaledata.R** — drop `scale.data` from every assay and save
 
@@ -81,7 +85,7 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --downsample 0.1   # plot 
 seurat_dimplot_celltype-cluster.R --seurat object.qs2 --ncells 50000     # plot 50k cells
 ```
 
-Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, the filename with `--outputfile`, and pass `--repel` to repel the cluster labels. `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and draw a uniform random subset of cells with a fixed `--seed` (default 1976); the object is not subset, only the plotted cells, and the cell count is noted in the plot subtitle.
+Writes a PNG to `<outdir>/plots/` (`--outdir` defaults to `.`). Override the reduction with `--reduction`, the filename with `--outputfile`, the plot size with `--height`/`--width`, and pass `--repel` to repel the cluster labels. `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and draw a uniform random subset of cells with a fixed `--seed` (default 1976); the object is not subset, only the plotted cells, and the cell count is noted in the plot subtitle.
 
 **seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend.
 
@@ -89,7 +93,7 @@ Writes a PNG to `<outdir>/plots/`. Override the reduction with `--reduction`, th
 seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 --colorby orig.ident
 ```
 
-Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, the output path with `--outputfile`, and toggle cluster labels with `--label`/`--label_size`/`--repel`.
+Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, the output path with `--outputfile`, the plot size with `--height`/`--width`, and toggle cluster labels with `--label`/`--label_size`/`--repel`.
 
 **seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
 
@@ -97,7 +101,7 @@ Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, 
 seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.0.8 --n_top_genes 5
 ```
 
-`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents`, the number of genes per cluster with `--n_top_genes`, and the output PNG with `--output_path`.
+`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents`, the number of genes per cluster with `--n_top_genes`, and the output PNG with `--output_path`. Adjust the plot with `--title`, `--labelsize`, `--rotatelabels`, `--width`, and `--height`.
 
 ## Functions
 
@@ -109,5 +113,7 @@ seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.
 | `SaveMetadata()` | Save Seurat metadata to a TSV, RDS or QS2 file |
 | `FixFragmentPaths()` | Fix paths to ATAC fragment files in a Seurat object |
 | `FixClusterFactorLevels()` | Relevel cluster factors into numerical order |
-| `SelfScmapCluster()` | Map cell types within a single dataset using scmap |
-| `TwoSampleScmapCluster()` | Map cell types between two datasets using scmap |
+| `Self_scmapCluster()` | Map cell types within a single dataset using scmap |
+| `TwoSample_scmapCluster()` | Map cell types between two datasets using scmap |
+| `ReadSeurat()` | Read a Seurat object from an RDS or QS2 file |
+| `WriteSeurat()` | Write a Seurat object to an RDS or QS2 file |
