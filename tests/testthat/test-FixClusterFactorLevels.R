@@ -20,3 +20,21 @@ test_that("FixClusterFactorLevels ignores character score columns", {
   seurat@meta.data$RNA_snn_res.0.5.score <- as.character(runif(ncol(seurat)))
   expect_no_error(FixClusterFactorLevels(seurat))
 })
+
+test_that("FixClusterFactorLevels sorts levels that are out of numeric order", {
+  # pbmc_small tops out at 3 clusters, where string and numeric order cannot
+  # diverge. multiome_small has 18 clusters at this resolution, and levels go
+  # out of order whenever the cluster ids pass through a character vector.
+  seurat = multiome_small
+  orig = seurat$SCT_snn_res.0.8
+  seurat$SCT_snn_res.0.8 = factor(as.character(orig))
+
+  # confirm the fixture actually reproduces the problem before testing the fix
+  expect_false(identical(levels(seurat$SCT_snn_res.0.8), levels(orig)))
+
+  result = suppressMessages(FixClusterFactorLevels(seurat))
+
+  expect_equal(levels(result$SCT_snn_res.0.8), levels(orig))
+  # releveling must reorder levels only, never reassign a cell
+  expect_equal(as.character(result$SCT_snn_res.0.8), as.character(orig))
+})
