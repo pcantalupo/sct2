@@ -95,6 +95,21 @@ seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 -
 
 Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, the output path with `--outputfile`, the plot size with `--height`/`--width`, and toggle cluster labels with `--label`/`--label_size`/`--repel`.
 
+The panel grid is not configurable. `DimPlot_scCustom` assembles the per-level plots with `patchwork::wrap_plots()` and no `ncol`, so the layout falls through to `ggplot2:::wrap_dims()`, which calls `grDevices::n2mfrow(n)` on the number of `--splitby` levels. That function is landscape-biased, so it does not always produce a square-ish grid. Predict the layout without loading the object:
+
+```bash
+Rscript -e 'n <- 3; cat(rev(grDevices::n2mfrow(n)), "\n")'   # -> 1 3  (1 row, 3 columns)
+```
+
+| `--splitby` levels | rows × columns |
+|---|---|
+| 2 | 1 × 2 |
+| 3 | 1 × 3 |
+| 4 | 2 × 2 |
+| 5 | 2 × 3 |
+| 6 | 2 × 3 |
+| 7–9 | 3 × 3 |
+
 **seurat_dimplot_colorby.R** — one UMAP DimPlot per `--colorby` metadata column (mapped to `group.by`)
 
 ```bash
