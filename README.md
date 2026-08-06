@@ -95,6 +95,15 @@ seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 -
 
 Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, the output path with `--outputfile`, the plot size with `--height`/`--width`, and toggle cluster labels with `--label`/`--label_size`/`--repel`.
 
+**seurat_dimplot_colorby.R** — one UMAP DimPlot per `--colorby` metadata column (mapped to `group.by`)
+
+```bash
+seurat_dimplot_colorby.R --seurat object.qs2 --colorby RNA_snn_res.0.8
+seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.8,singleR_cluster_labels
+```
+
+`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column to `<outdir>/plots/` (`--outdir` defaults to `.`), named `<REDUCTION>_colored_by_<colorby>.png`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels. Override the reduction with `--reduction`, the plot size with `--height`/`--width`, and toggle labels with `--label`/`--label_size`/`--repel`.
+
 **seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
 
 ```bash

@@ -2,5 +2,6 @@
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$
+^CLAUDE\.md$
 ^data-raw$
 ^local$
