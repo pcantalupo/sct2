@@ -1,3 +1,8 @@
+# sct2 0.3.6
+
+- Add `seurat_dimplot_colorby.R` command-line script: one DimPlot per `--colorby` metadata column, from a single object load
+- Add `CLAUDE.md` documenting the bundled test objects and the command-line script conventions
+
 # sct2 0.3.5
 
 - `SaveMetadata()` picks the output format from the filename extension: `.rds` and `.qs2` save the metadata data.frame directly, preserving factor levels, column classes, and cell barcodes as rownames; any other extension writes a TSV as before. `colname_for_rows` applies to TSV output only
