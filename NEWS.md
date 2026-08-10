@@ -1,3 +1,9 @@
+# sct2 0.3.7
+
+- `seurat_downsample.R` writes its default `_ds<tag>` output to the current directory instead of next to the input object
+- Document the panel grid layout of `seurat_dimplot_splitby-colorby.R`
+- Add Claude Code GitHub Workflow
+
 # sct2 0.3.6
 
 - Add `seurat_dimplot_colorby.R` command-line script: one DimPlot per `--colorby` metadata column, from a single object load
