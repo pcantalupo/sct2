@@ -58,7 +58,7 @@ seurat_downsample.R --seurat object.qs2 --downsample 0.05   # keep 5% of cells
 seurat_downsample.R --seurat object.qs2 --ncells 50000      # keep 50k cells
 ```
 
-Default output adds a `_ds<tag>` next to the input (`--outfile` to override). `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and sample with a fixed `--seed` (default 1976). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
+Default output adds a `_ds<tag>` to the input basename and writes to the current directory (`--outfile` to override). `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and sample with a fixed `--seed` (default 1976). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
 
 **seurat_update_object.R** — run `UpdateSeuratObject()` and save
 

@@ -8,7 +8,7 @@
 # writes .qs2 (qs2::qs_read/qs_save) or .rds/.RDS (readRDS/saveRDS), inferred
 # per-file from the extension.
 #
-# Default output adds a _ds<tag> next to the input:
+# Default output adds a _ds<tag> and writes to the current directory:
 #   --downsample 0.05  ->  seurat.qs2 -> seurat_ds05.qs2
 #   --ncells 50000     ->  seurat.qs2 -> seurat_ds50k.qs2
 #
@@ -29,7 +29,7 @@ option_list <- list(
   make_option("--seed", type = "integer", default = 1976,
               help = "RNG seed for sampling [default: %default]"),
   make_option("--outfile", type = "character", default = NULL,
-              help = "Output path; format inferred from extension [default: input with a _ds<tag>]"),
+              help = "Output path; format inferred from extension [default: input basename with a _ds<tag>, in the current directory]"),
   make_option("--update", action = "store_true", default = FALSE,
               help = "Run UpdateSeuratObject() before subsetting (for objects written under an older SeuratObject) [default: %default]"),
   make_option("--force", action = "store_true", default = FALSE,
@@ -70,7 +70,7 @@ print(opts)
 # clobber is caught immediately.
 output <- opts$outfile
 if (is.null(output)) {
-  base <- tools::file_path_sans_ext(opts$seurat)
+  base <- tools::file_path_sans_ext(basename(opts$seurat))
   ext <- tools::file_ext(opts$seurat)
   if (mode == "fraction") {
     tag <- sprintf("ds%02d", round(frac * 100))
