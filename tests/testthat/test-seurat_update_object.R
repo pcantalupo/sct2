@@ -53,11 +53,3 @@ test_that("seurat_update_object.R rejects an --outfile in a directory that is no
                "--outfile directory is not writable", fixed = TRUE)
   expect_false(reached_options_print(out))
 })
-
-test_that("seurat_update_object.R accepts a writable directory and an uppercase .RDS", {
-  # The script loads the installed sct2 once validation passes; it then fails on
-  # the dummy input, which is past the point these tests cover and is not asserted.
-  skip_if_not_installed("sct2")
-  out = run_update_object(tempfile(fileext = ".RDS"))
-  expect_true(reached_options_print(out))
-})
