@@ -49,6 +49,9 @@ if (!tolower(tools::file_ext(outfile)) %in% c("rds", "qs2")) {
 if (!dir.exists(dirname(outfile))) {
   stop("--outfile directory does not exist: ", dirname(outfile))
 }
+if (file.access(dirname(outfile), mode = 2) != 0) {
+  stop("--outfile directory is not writable: ", dirname(outfile))
+}
 
 print(opts)
 
