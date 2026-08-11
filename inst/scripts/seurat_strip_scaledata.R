@@ -36,15 +36,15 @@ if (!file.exists(opts$seurat)) {
 }
 
 inplace = is.null(opts$outfile)
-output = opts$outfile
+outfile = opts$outfile
 if (inplace) {
-  output = opts$seurat
-  message("NOTE: --outfile not given; overwriting --seurat in place:\n  ", output)
+  outfile = opts$seurat
+  message("NOTE: --outfile not given; overwriting --seurat in place:\n  ", outfile)
 }
 
 # Only guard a distinct --outfile; an in-place rewrite is the documented default.
-if (!inplace && file.exists(output) && !opts$force) {
-  stop("--outfile already exists: ", output, " (pass --force to overwrite)")
+if (!inplace && file.exists(outfile) && !opts$force) {
+  stop("--outfile already exists: ", outfile, " (pass --force to overwrite)")
 }
 
 print(opts)
@@ -102,8 +102,8 @@ message("Object size after:  ", format(object.size(seurat), units = "auto"))
 
 print(seurat)
 
-message("\nSaving to ", output)
-WriteSeurat(seurat, output)
+message("\nSaving to ", outfile)
+WriteSeurat(seurat, outfile)
 
 message("\nDone.")
 

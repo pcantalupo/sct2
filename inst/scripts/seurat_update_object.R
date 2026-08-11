@@ -38,10 +38,16 @@ if (!file.exists(opts$seurat)) {
   stop("--seurat file not found: ", opts$seurat)
 }
 
-output <- opts$outfile
-if (is.null(output)) {
-  output <- opts$seurat
-  message("NOTE: --outfile not given; overwriting --seurat in place:\n  ", output)
+outfile <- opts$outfile
+if (is.null(outfile)) {
+  outfile <- opts$seurat
+  message("NOTE: --outfile not given; overwriting --seurat in place:\n  ", outfile)
+}
+if (!tolower(tools::file_ext(outfile)) %in% c("rds", "qs2")) {
+  stop("--outfile must end in .rds or .qs2: ", outfile)
+}
+if (!dir.exists(dirname(outfile))) {
+  stop("--outfile directory does not exist: ", dirname(outfile))
 }
 
 print(opts)
@@ -83,8 +89,8 @@ if (opts$check) {
   }
 }
 
-message("\nSaving updated object to ", output)
-WriteSeurat(seurat, output)
+message("\nSaving updated object to ", outfile)
+WriteSeurat(seurat, outfile)
 
 message("\nDone.")
 

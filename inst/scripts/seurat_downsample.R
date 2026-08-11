@@ -68,8 +68,8 @@ print(opts)
 
 # Resolve the output path (and the _ds<tag>) before the expensive load so a
 # clobber is caught immediately.
-output <- opts$outfile
-if (is.null(output)) {
+outfile <- opts$outfile
+if (is.null(outfile)) {
   base <- tools::file_path_sans_ext(basename(opts$seurat))
   ext <- tools::file_ext(opts$seurat)
   if (mode == "fraction") {
@@ -79,11 +79,11 @@ if (is.null(output)) {
   } else {
     tag <- paste0("ds", opts$ncells)
   }
-  output <- paste0(base, "_", tag, ".", ext)
+  outfile <- paste0(base, "_", tag, ".", ext)
 }
 
-if (file.exists(output) && !opts$force) {
-  stop("--outfile already exists: ", output, " (pass --force to overwrite)")
+if (file.exists(outfile) && !opts$force) {
+  stop("--outfile already exists: ", outfile, " (pass --force to overwrite)")
 }
 
 
@@ -117,8 +117,8 @@ keep <- sample(Cells(seurat), size = n_keep, replace = FALSE)
 seurat <- subset(seurat, cells = keep)
 print(seurat)
 
-message("\nSaving to ", output)
-WriteSeurat(seurat, output)
+message("\nSaving to ", outfile)
+WriteSeurat(seurat, outfile)
 
 message("\nDone.")
 
