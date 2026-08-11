@@ -6,7 +6,10 @@
 
 run_update_object = function(outfile) {
   script = system.file("scripts", "seurat_update_object.R", package = "sct2")
-  skip_if(script == "", "seurat_update_object.R not found")
+  # A failed lookup is a broken install, not a reason to skip silently.
+  if (!nzchar(script)) {
+    stop("seurat_update_object.R not found in the installed package")
+  }
   # The guards fire before the object is read, so the input only has to exist.
   input = tempfile(fileext = ".qs2")
   file.create(input)
@@ -21,6 +24,14 @@ run_update_object = function(outfile) {
 reached_options_print = function(out) {
   any(grepl("^\\$seurat", out))
 }
+
+# Anchors the probe the guard tests rely on: without this, every
+# expect_false(reached_options_print(...)) below would also pass if print(opts)
+# were removed from the script, i.e. while checking nothing.
+test_that("reached_options_print detects the options printout", {
+  expect_true(reached_options_print(c("$seurat", "[1] \"obj.qs2\"")))
+  expect_false(reached_options_print("Error: --outfile must end in .rds or .qs2"))
+})
 
 test_that("seurat_update_object.R rejects an --outfile with an unsupported extension", {
   out = run_update_object(file.path(tempdir(), "obj.qs"))
@@ -39,7 +50,7 @@ test_that("seurat_update_object.R rejects an --outfile in a directory that does 
 })
 
 test_that("seurat_update_object.R rejects an --outfile in a directory that is not writable", {
-  readonly = file.path(tempdir(), "sct2-readonly")
+  readonly = tempfile()
   dir.create(readonly)
   Sys.chmod(readonly, "500")
   on.exit({

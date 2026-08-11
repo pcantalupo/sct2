@@ -45,12 +45,12 @@ test_that("WriteSeurat can overwrite its own input path in place", {
 })
 
 test_that("WriteSeurat leaves no stray tempfile in the target directory", {
-  dir <- tempfile()
-  dir.create(dir)
-  on.exit(unlink(dir, recursive = TRUE))
-  path <- file.path(dir, "seurat.rds")
+  outdir <- tempfile()
+  dir.create(outdir)
+  on.exit(unlink(outdir, recursive = TRUE))
+  path <- file.path(outdir, "seurat.rds")
   WriteSeurat(pbmc_small, path)
-  expect_equal(list.files(dir), basename(path))
+  expect_equal(list.files(outdir), basename(path))
 })
 
 # The atomic write only shows up when serialization fails partway through: on
