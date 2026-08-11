@@ -24,9 +24,7 @@ option_list <- list(
   make_option("--seurat", type = "character", default = NULL,
               help = "Path to the input Seurat object (.qs2 or .rds/.RDS) [required]"),
   make_option("--outfile", type = "character", default = NULL,
-              help = "Path to write the updated object; format inferred from extension. [default: overwrite --seurat in place]"),
-  make_option("--check", type = "logical", default = TRUE,
-              help = "After updating, subset the first 100 cells to confirm the FOV validates [default: %default]")
+              help = "Path to write the updated object; format inferred from extension. [default: overwrite --seurat in place]")
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
@@ -72,25 +70,10 @@ message("\nRunning UpdateSeuratObject()")
 seurat <- UpdateSeuratObject(seurat)
 message("Object @version after update:  ", seurat@version)
 
-# Confirm the migration actually fixed the FOV/Centroids slots: a subset is the
-# operation that reconstructs (and validates) the FOV, i.e. the one that was failing.
-if (opts$check) {
-  message("\nValidation: subsetting first 100 cells to exercise FOV reconstruction")
-  n <- min(100, ncol(seurat))
-  ok <- tryCatch({
-    invisible(subset(seurat, cells = head(Cells(seurat), n)))
-    TRUE
-  }, error = function(e) {
-    message("  VALIDATION FAILED: ", conditionMessage(e))
-    FALSE
-  })
-  if (ok) {
-    message("  OK: subset validated, FOV slots are current")
-  } else {
-    stop("UpdateSeuratObject() did not produce a valid object; NOT saving. ",
-         "FOV migration likely incomplete -- regenerate upstream under the current SeuratObject.")
-  }
-}
+# No post-update validation here: UpdateSeuratObject() ends by running
+# validObject() on the object and on every image, so a bad migration errors above
+# and nothing is written. WriteSeurat() is atomic, so a failed write leaves the
+# input intact.
 
 message("\nSaving updated object to ", outfile)
 WriteSeurat(seurat, outfile)

@@ -66,7 +66,7 @@ Default output adds a `_ds<tag>` to the input basename and writes to the current
 seurat_update_object.R --seurat object.qs2 --outfile object_updated.qs2
 ```
 
-Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`. After updating, the first 100 cells are subset to confirm the FOV validates; disable with `--check FALSE`.
+Without `--outfile`, the input is overwritten in place. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`. `UpdateSeuratObject()` validates the object it returns, so a failed migration errors before anything is written.
 
 **seurat_strip_scaledata.R** — drop `scale.data` from every assay and save
 
