@@ -1,3 +1,10 @@
+# sct2 0.4.0
+
+- Remove the `--check` flag from `seurat_update_object.R`. `UpdateSeuratObject()` runs `validObject()` on the object and on every image before returning, so a failed migration already errors before anything is written (#6). Invocations passing `--check` will now fail with an invalid-flag error
+- `seurat_update_object.R` validates `--outfile` in the options block, before the object load: the extension must be `.rds` or `.qs2`, and the parent directory must exist and be writable (#5). Previously a bad output path was not discovered until after the load and update
+- `WriteSeurat()` writes atomically: the object is serialized to a tempfile in the target directory and renamed into place, so an interrupt or a failed write can no longer corrupt an existing file at that path (#4). This matters for the scripts that overwrite their input in place. Note that an in-place rewrite now needs free space for a second copy, and write permission on the directory rather than on the file
+- Add tests covering the `--outfile` guards and the failed-write path, and require `testthat (>= 3.2.0)`
+
 # sct2 0.3.7
 
 - `seurat_downsample.R` writes its default `_ds<tag>` output to the current directory instead of next to the input object
