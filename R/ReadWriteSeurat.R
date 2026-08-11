@@ -28,7 +28,11 @@ ReadSeurat <- function(path) {
 }
 
 #' @title WriteSeurat
-#' @description Write a Seurat object to an RDS or QS2 file.
+#' @description Write a Seurat object to an RDS or QS2 file. The object is
+#'   serialized to a tempfile in the same directory as \code{path} and then
+#'   renamed into place, so a failure partway through serialization (an
+#'   interrupt, a full disk, etc.) cannot corrupt an existing file at
+#'   \code{path} -- this matters when \code{path} is also the input file.
 #' @param seurat A Seurat object
 #' @param path Output path (.rds or .qs2)
 #' @return Invisibly returns path
@@ -42,12 +46,18 @@ ReadSeurat <- function(path) {
 #'
 WriteSeurat <- function(seurat, path) {
   ext <- tolower(tools::file_ext(path))
-  if (ext == "qs2") {
-    qs2::qs_save(seurat, path)
-  } else if (ext == "rds") {
-    saveRDS(seurat, path)
-  } else {
+  if (!ext %in% c("qs2", "rds")) {
     stop("Unsupported extension '.", ext, "' (expected .rds or .qs2)")
+  }
+  tmp <- tempfile(tmpdir = dirname(path), fileext = paste0(".", ext))
+  on.exit(unlink(tmp), add = TRUE)
+  if (ext == "qs2") {
+    qs2::qs_save(seurat, tmp)
+  } else {
+    saveRDS(seurat, tmp)
+  }
+  if (!file.rename(tmp, path)) {
+    stop("Failed to move temporary file into place at ", path)
   }
   invisible(path)
 }

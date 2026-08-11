@@ -15,7 +15,11 @@ WriteSeurat(seurat, path)
 Invisibly returns path
 }
 \description{
-Write a Seurat object to an RDS or QS2 file.
+Write a Seurat object to an RDS or QS2 file. The object is
+  serialized to a tempfile in the same directory as \code{path} and then
+  renamed into place, so a failure partway through serialization (an
+  interrupt, a full disk, etc.) cannot corrupt an existing file at
+  \code{path} -- this matters when \code{path} is also the input file.
 }
 \examples{
 
