@@ -12,12 +12,8 @@ test_that("SignacInfo works", {
 test_that("SignacInfo displays fragment paths for all 6 samples", {
   info = SignacInfo(multiome_small)
 
-  paths = c("C:\\Users\\pgc92\\OneDrive - University of Pittsburgh\\DBMI_Genomics_Analysis_Chandran\\Paul\\dasilva_multiome\\cellranger_count\\2\\outs\\atac_fragments.tsv.gz",
-            "C:\\Users\\pgc92\\OneDrive - University of Pittsburgh\\DBMI_Genomics_Analysis_Chandran\\Paul\\dasilva_multiome\\cellranger_count\\3\\outs\\atac_fragments.tsv.gz",
-            "C:\\Users\\pgc92\\OneDrive - University of Pittsburgh\\DBMI_Genomics_Analysis_Chandran\\Paul\\dasilva_multiome\\cellranger_count\\4\\outs\\atac_fragments.tsv.gz",
-            "C:\\Users\\pgc92\\OneDrive - University of Pittsburgh\\DBMI_Genomics_Analysis_Chandran\\Paul\\dasilva_multiome\\cellranger_count\\5a\\outs\\atac_fragments.tsv.gz",
-            "C:\\Users\\pgc92\\OneDrive - University of Pittsburgh\\DBMI_Genomics_Analysis_Chandran\\Paul\\dasilva_multiome\\cellranger_count\\5b\\outs\\atac_fragments.tsv.gz",
-            "C:\\Users\\pgc92\\OneDrive - University of Pittsburgh\\DBMI_Genomics_Analysis_Chandran\\Paul\\dasilva_multiome\\cellranger_count\\6\\outs\\atac_fragments.tsv.gz")
+  paths = file.path("cellranger_count", c("2", "3", "4", "5a", "5b", "6"),
+                    "outs", "atac_fragments.tsv.gz")
 
   expect_equal(info$ATAC$Fragments$fragment_paths, paths)
 })

@@ -21,6 +21,17 @@ features_keep = c(sample(rownames(multiome_small), size = 100),
                   sample(rownames(multiome_small[['ATAC']]), size=100))
 multiome_small = subset(multiome_small, features = features_keep)
 
+# Replace the absolute fragment paths from the source object with neutral
+# relative paths so no local directory structure ships with the package
+frags = multiome_small@assays$ATAC@fragments
+for (i in seq_along(frags)) {
+  parts = strsplit(frags[[i]]@path, "[\\\\/]")[[1]]
+  sample = parts[length(parts) - 2]
+  slot(frags[[i]], "path") = file.path("cellranger_count", sample, "outs",
+                                       "atac_fragments.tsv.gz")
+}
+multiome_small@assays$ATAC@fragments = frags
+
 saveRDS(multiome_small, "inst/extdata/multiome_small.rds")
 usethis::use_data(multiome_small, overwrite = TRUE)
 
