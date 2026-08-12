@@ -15,6 +15,12 @@ The package ships Seurat objects for testing — use these instead of asking for
 
 Metadata columns on the pbmc objects: `orig.ident`, `nCount_RNA`, `nFeature_RNA`, `RNA_snn_res.0.8`, `RNA_snn_res.1`, `letter.idents`, `groups`.
 
+## scmap functions are out of scope for testing
+
+`Self_scmapCluster()` and `TwoSample_scmapCluster()` are not to be improved test-wise. Leave `test-Self_scmapCluster.R` and `test-TwoSample_scmapCluster.R` alone — do not add assertions, do not suppress the `getSankey()` browser plots, do not propose changing the signatures.
+
+When running a test-smell audit, still report their smells (the tests assert only `names()` and never a returned value, and `plot(getSankey(...))` opens a browser on every test run) — but report them as known and accepted, and do not include them in a "top N to fix" list.
+
 ## Testing a CLI script
 
 Scripts call `pacman::p_load(sct2)`, which loads the *installed* package — `devtools::load_all()` does not reach them. Write the test object to a temp `.qs2` with `devtools::load_all()` in a separate `Rscript -e`, then invoke the script against that file:
