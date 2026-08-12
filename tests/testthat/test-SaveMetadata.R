@@ -1,22 +1,23 @@
 test_that("SaveMetadata writes a metadata file", {
-  file = "pbmc_small_metadata.tsv"
+  file = tempfile(fileext = ".tsv")
+  on.exit(unlink(file))
   SaveMetadata(seurat = pbmc_small, filename = file)
   #Test if the file was created
   expect_true(file.exists(file))
-  unlink(file)
 })
 
 test_that("SaveMetadata uses the colname_for_rows parameter appropriately", {
-  file = "pbmc_small_metadata.tsv"
+  file = tempfile(fileext = ".tsv")
+  on.exit(unlink(file))
   colname = "foo"
   SaveMetadata(seurat = pbmc_small, filename = file, colname_for_rows = colname)
   metadata = read.delim(file, sep="\t")
   expect_equal(colnames(metadata)[1], colname)
-  unlink(file)
 })
 
 test_that("SaveMetadata writes an RDS file that preserves factors and rownames", {
   file = tempfile(fileext = ".rds")
+  on.exit(unlink(file))
   seurat = pbmc_small
   seurat$mycluster = factor(seurat$RNA_snn_res.1, levels = c("2", "0", "1"))
   SaveMetadata(seurat = seurat, filename = file)
@@ -26,12 +27,12 @@ test_that("SaveMetadata writes an RDS file that preserves factors and rownames",
   expect_equal(levels(metadata$mycluster), c("2", "0", "1"))
   expect_equal(rownames(metadata), colnames(seurat))
   expect_equal(metadata, seurat[[]])
-  unlink(file)
 })
 
 test_that("SaveMetadata writes a QS2 file that preserves factors and rownames", {
   skip_if_not_installed("qs2")
   file = tempfile(fileext = ".qs2")
+  on.exit(unlink(file))
   seurat = pbmc_small
   seurat$mycluster = factor(seurat$RNA_snn_res.1, levels = c("2", "0", "1"))
   SaveMetadata(seurat = seurat, filename = file)
@@ -41,7 +42,6 @@ test_that("SaveMetadata writes a QS2 file that preserves factors and rownames", 
   expect_equal(levels(metadata$mycluster), c("2", "0", "1"))
   expect_equal(rownames(metadata), colnames(seurat))
   expect_equal(metadata, seurat[[]])
-  unlink(file)
 })
 
 test_that("SaveMetadata expects seurat and filename params", {
