@@ -1,3 +1,10 @@
+# sct2 0.4.1
+
+- Add `DownsampleObject()`: draw a uniform random subset of cells from a Seurat or SingleCellExperiment object. `downsample` is a fraction when `<= 1` and an absolute cell count when `> 1`, clamped to the object size; the object is returned unchanged and the RNG untouched when the resolved count is the whole object (#9)
+- Scope the `SaveMetadata` test file cleanup with `on.exit()`
+- Replace personal fragment paths in `multiome_small` with relative paths
+- Document that the scmap tests are out of scope for testing work
+
 # sct2 0.4.0
 
 - Remove the `--check` flag from `seurat_update_object.R`. `UpdateSeuratObject()` runs `validObject()` on the object and on every image before returning, so a failed migration already errors before anything is written (#6). Invocations passing `--check` will now fail with an invalid-flag error
