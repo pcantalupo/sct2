@@ -137,6 +137,7 @@ seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.
 | `SaveMetadata()` | Save Seurat metadata to a TSV, RDS or QS2 file |
 | `FixFragmentPaths()` | Fix paths to ATAC fragment files in a Seurat object |
 | `FixClusterFactorLevels()` | Relevel cluster factors into numerical order |
+| `DownsampleObject()` | Randomly subset cells from a Seurat or SingleCellExperiment object |
 | `Self_scmapCluster()` | Map cell types within a single dataset using scmap |
 | `TwoSample_scmapCluster()` | Map cell types between two datasets using scmap |
 | `ReadSeurat()` | Read a Seurat object from an RDS or QS2 file |
