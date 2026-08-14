@@ -1,3 +1,14 @@
+# sct2 0.4.2
+
+- `seurat_downsample.R` uses `DownsampleObject()` instead of its own copy of the sampling logic (#9). `seurat_dimplot_celltype-cluster.R` still carries its own copy
+- `seurat_downsample.R` forwards `--seed` to the sampler. It was parsed and printed but never passed, so every run sampled with the default seed regardless of the flag
+- `seurat_downsample.R` stops when an absolute `--downsample` count exceeds the object size, rather than relying on the clamp in `DownsampleObject()`. The `_ds<tag>` output name is resolved before the object is read, so a silent clamp would write a full-size object under a name claiming a downsample that never happened
+- `seurat_downsample.R` rejects a `--downsample` that is not positive, and `DownsampleObject()` errors when a fraction floors to zero cells instead of failing later inside `subset.Seurat()` with "No cells found"
+- `seurat_downsample.R` output tags distinguish a fraction from a count: a fraction tags as a percentage and a count tags in thousands with a trailing `k`, so `--downsample 0.3` gives `_ds30` and `--downsample 30` gives `_ds0.03k`. Both produced `_ds30` before. `--downsample 1` tags `_ds100` rather than `_ds1`
+- `seurat_downsample.R` logs the before and after cell counts with the seed used
+- Remove the `--ncells` flag from `seurat_downsample.R`; pass an absolute count to `--downsample` instead. The default `--seed` is 1946
+- Add `test-seurat_downsample.R` covering the output tag scheme and the argument guards
+
 # sct2 0.4.1
 
 - Add `DownsampleObject()`: draw a uniform random subset of cells from a Seurat or SingleCellExperiment object. `downsample` is a fraction when `<= 1` and an absolute cell count when `> 1`, clamped to the object size; the object is returned unchanged and the RNG untouched when the resolved count is the whole object (#9)
