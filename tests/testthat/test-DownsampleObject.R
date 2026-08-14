@@ -24,6 +24,13 @@ test_that("2 is the smallest absolute number of cells", {
   expect_equal(ncol(DownsampleObject(pbmc_small, 2)), 2)
 })
 
+test_that("a fraction that resolves to zero cells is an error", {
+  # 80 * 0.001 = 0.08, which floors to 0; subsetting to no cells would otherwise
+  # fail inside subset.Seurat with an opaque "No cells found".
+  expect_error(DownsampleObject(pbmc_small, 0.001), "nothing to sample")
+  expect_error(DownsampleObject(pbmc_small_sce, 0.001), "nothing to sample")
+})
+
 test_that("an absolute number at or above the object size returns the same object", {
   expect_equal(pbmc_small, DownsampleObject(pbmc_small, ncol(pbmc_small)))
   expect_equal(pbmc_small, DownsampleObject(pbmc_small, 500))

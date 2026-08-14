@@ -25,7 +25,7 @@ the subset is done with `object[, cells]`.
 The `downsample` argument is overloaded: a value of 1 or less is a fraction of
 the cells to keep, and a value above 1 is an absolute cell count (so the
 smallest count is 2). A count larger than the object is clamped to the object
-size.
+size. A fraction small enough to resolve to zero cells is an error.
 
 When the resolved number of cells to keep is the whole object -- the default
 `downsample = 1`, or a count at or above the object size -- the object is

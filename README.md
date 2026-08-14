@@ -55,10 +55,10 @@ seurat_save_metadata.R --seurat object.qs2 --outfile metadata.rds   # preserves 
 
 ```bash
 seurat_downsample.R --seurat object.qs2 --downsample 0.05   # keep 5% of cells
-seurat_downsample.R --seurat object.qs2 --ncells 50000      # keep 50k cells
+seurat_downsample.R --seurat object.qs2 --downsample 50000  # keep 50k cells
 ```
 
-Default output adds a `_ds<tag>` to the input basename and writes to the current directory (`--outfile` to override). `--downsample` (fraction) and `--ncells` (absolute count) are mutually exclusive and sample with a fixed `--seed` (default 1976). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
+Default output adds a `_ds<tag>` to the input basename and writes to the current directory (`--outfile` to override). `--downsample` is overloaded: a value of 1 or less is a fraction of cells to keep, a value above 1 is an absolute cell count. A fraction tags as a percentage (`0.3` → `_ds30`) and a count tags in thousands with a trailing `k` (`30` → `_ds0.03k`, `50000` → `_ds50k`), so the two never collide. A count larger than the object is an error rather than a no-op, since the `_ds<tag>` is resolved before the object is read and would otherwise name a downsample that never happened. Sampling uses a fixed `--seed` (default 1946). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
 
 **seurat_update_object.R** — run `UpdateSeuratObject()` and save
 

@@ -8,9 +8,13 @@
 # writes .qs2 (qs2::qs_read/qs_save) or .rds/.RDS (readRDS/saveRDS), inferred
 # per-file from the extension.
 #
-# Default output adds a _ds<tag> and writes to the current directory:
+# Default output adds a _ds<tag> and writes to the current directory. A fraction
+# tags as a percentage, a count tags in thousands with a trailing "k", so the two
+# can never collide:
 #   --downsample 0.05  ->  seurat.qs2 -> seurat_ds05.qs2
-#   --ncells 50000     ->  seurat.qs2 -> seurat_ds50k.qs2
+#   --downsample 0.3   ->  seurat.qs2 -> seurat_ds30.qs2
+#   --downsample 30    ->  seurat.qs2 -> seurat_ds0.03k.qs2
+#   --downsample 50000 ->  seurat.qs2 -> seurat_ds50k.qs2
 #
 # Subsetting reconstructs (and validates) any FOV/spatial fields. An object
 # written under an older SeuratObject will throw "invalid class FOV object" here;
@@ -22,11 +26,9 @@ pacman::p_load(optparse)
 option_list <- list(
   make_option("--seurat", type = "character", default = "seurat.qs2",
               help = "Path to the input Seurat object (.qs2 or .rds/.RDS) [default: %default]"),
-  make_option("--downsample", type = "numeric", default = NULL,
-              help = "Fraction of cells to retain, in (0, 1]; mutually exclusive with --ncells [default: 0.05 when neither given]"),
-  make_option("--ncells", type = "integer", default = NULL,
-              help = "Absolute number of cells to retain; mutually exclusive with --downsample [default: %default]"),
-  make_option("--seed", type = "integer", default = 1976,
+  make_option("--downsample", type = "numeric", default = 0.05,
+              help = "Fraction of cells to retain, in (0, 1] or absolute number of cells > 1 [default: %default]"),
+  make_option("--seed", type = "integer", default = 1946,
               help = "RNG seed for sampling [default: %default]"),
   make_option("--outfile", type = "character", default = NULL,
               help = "Output path; format inferred from extension [default: input basename with a _ds<tag>, in the current directory]"),
@@ -42,28 +44,12 @@ if (!file.exists(opts$seurat)) {
   stop("--seurat file not found: ", opts$seurat)
 }
 
-# Resolve sampling mode: fraction (default) or absolute count, never both.
-if (!is.null(opts$downsample) && !is.null(opts$ncells)) {
-  stop("Specify only one of --downsample or --ncells")
-}
-if (!is.null(opts$ncells)) {
-  mode <- "count"
-  if (opts$ncells < 1) {
-    stop("--ncells must be >= 1")
-  }
-} else {
-  mode <- "fraction"
-  if (is.null(opts$downsample)) {
-    frac <- 0.05
-  } else {
-    frac <- opts$downsample
-  }
-  if (frac <= 0 || frac > 1) {
-    stop("--downsample must be in (0, 1]")
-  }
+if (opts$downsample <= 0) {
+  stop("--downsample must be > 0")
 }
 
 print(opts)
+
 
 
 # Resolve the output path (and the _ds<tag>) before the expensive load so a
@@ -72,12 +58,13 @@ outfile <- opts$outfile
 if (is.null(outfile)) {
   base <- tools::file_path_sans_ext(basename(opts$seurat))
   ext <- tools::file_ext(opts$seurat)
-  if (mode == "fraction") {
-    tag <- sprintf("ds%02d", round(frac * 100))
-  } else if (opts$ncells %% 1000 == 0) {
-    tag <- paste0("ds", opts$ncells %/% 1000, "k")
+  # Counts always carry a "k" and fractions never do, so a fraction and a count
+  # that share digits (0.3 vs 30) cannot resolve to the same filename.
+  if (opts$downsample <= 1) {
+    tag <- sprintf("ds%02d", round(opts$downsample * 100))
   } else {
-    tag <- paste0("ds", opts$ncells)
+    tag <- paste0("ds", format(opts$downsample / 1000, drop0trailing = TRUE,
+                               scientific = FALSE, trim = TRUE), "k")
   }
   outfile <- paste0(base, "_", tag, ".", ext)
 }
@@ -98,23 +85,18 @@ if (opts$update) {
   seurat <- UpdateSeuratObject(seurat)
 }
 
-n_total <- ncol(seurat)
-if (mode == "fraction") {
-  n_keep <- floor(n_total * frac)
-} else {
-  if (opts$ncells > n_total) {
-    message("NOTE: --ncells ", opts$ncells, " exceeds object size ", n_total, "; keeping all cells")
-  }
-  n_keep <- min(opts$ncells, n_total)
-}
-if (n_keep < 1) {
-  stop("Resolved cells-to-keep is ", n_keep, "; nothing to sample")
+# DownsampleObject() clamps a count larger than the object and returns it
+# unchanged, which here would write a full-size object under a _ds<tag> naming a
+# downsample that never happened. Checked after --update so the count is read off
+# a valid object. This is the earliest the object size is known: the _ds<tag> was
+# resolved before the load and cannot account for it.
+n_cells <- ncol(seurat)
+if (opts$downsample > n_cells) {
+  stop("--downsample ", opts$downsample, " exceeds the object size ", n_cells)
 }
 
-message("\nDownsampling ", n_total, " -> ", n_keep, " cells (seed ", opts$seed, ")")
-set.seed(opts$seed)
-keep <- sample(Cells(seurat), size = n_keep, replace = FALSE)
-seurat <- subset(seurat, cells = keep)
+seurat = DownsampleObject(seurat, downsample = opts$downsample, seed = opts$seed)
+message("\nDownsampled ", n_cells, " -> ", ncol(seurat), " cells (seed ", opts$seed, ")")
 print(seurat)
 
 message("\nSaving to ", outfile)
