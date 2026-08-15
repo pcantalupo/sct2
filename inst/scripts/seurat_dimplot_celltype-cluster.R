@@ -7,9 +7,6 @@ pdf(NULL)
 # <celltype>_<cluster> column so every cluster of a celltype shares that celltype's
 # color while staying individually labeled. The combined column is built here from
 # the --celltype and --cluster metadata columns.
-#
-# --downsample (fraction) or --ncells (absolute count) draws a uniform random
-# subset of cells with a fixed --seed; the object itself is not subset.
 
 ##################### Options ########################
 option_list <- list(
@@ -18,9 +15,10 @@ option_list <- list(
   make_option("--cluster",  default = "RNA_snn_res.0.8",      type = "character", help = "Metadata column with cluster IDs (combined with celltype for the label) [default: %default]"),
   make_option("--reduction",  default = "umap",      type = "character", help = "Reduction to use [default: %default]"),
   make_option("--repel",    default = FALSE,                  type = "logical",   action = "store_true", help = "Repel the cluster labels [default: %default]"),
-  make_option("--downsample", default = NULL,                 type = "numeric",   help = "Fraction of cells to plot, in (0, 1]; mutually exclusive with --ncells [default: plot all cells]"),
-  make_option("--ncells",   default = NULL,                   type = "integer",   help = "Absolute number of cells to plot; mutually exclusive with --downsample [default: plot all cells]"),
-  make_option("--seed",     default = 1976,                   type = "integer",   help = "RNG seed for downsampling [default: %default]"),
+  make_option("--downsample", type = "numeric", default = 1,
+              help = "Fraction of cells to retain, in (0, 1] or absolute number of cells > 1 [default: %default]"),
+  make_option("--seed", type = "integer", default = 1946,
+              help = "RNG seed for sampling [default: %default]"),
   make_option("--height",   default = 7,                      type = "double",    help = "Plot height in inches [default: %default]"),
   make_option("--width",    default = 7,                      type = "double",    help = "Plot width in inches [default: %default]"),
   make_option("--outputfile", default = "",                   type = "character", help = "Output PNG filename [default: UMAP_colored_by_<celltype>_<cluster>.png]"),
@@ -38,36 +36,20 @@ width      <- opts$width
 outdir     <- opts$outdir
 reduction  <- opts$reduction
 repel      <- opts$repel
-seed       = opts$seed
 
 if (is.null(seuratfile) || seuratfile == "" || !file.exists(seuratfile)) {
   print_help(opt_parser)
   stop("--seurat must be an existing Seurat object (.rds or .qs2)")
 }
 
-# Resolve the downsampling mode: fraction, absolute count, or none. Validated
-# here so a bad value fails before the expensive load.
-if (!is.null(opts$downsample) && !is.null(opts$ncells)) {
-  stop("Specify only one of --downsample or --ncells")
-}
-if (!is.null(opts$ncells)) {
-  dsmode = "count"
-  if (opts$ncells < 1) {
-    stop("--ncells must be >= 1")
-  }
-} else if (!is.null(opts$downsample)) {
-  dsmode = "fraction"
-  if (opts$downsample <= 0 || opts$downsample > 1) {
-    stop("--downsample must be in (0, 1]")
-  }
-} else {
-  dsmode = "none"
-}
-
 if (is.null(opts$outputfile) || opts$outputfile == "") {
   opts$outputfile <- paste0("UMAP_colored_by_", celltype, "_", cluster, ".png")
 }
 outputfile <- opts$outputfile
+
+if (opts$downsample <= 0) {
+  stop("--downsample must be > 0")
+}
 
 plotsdir <- file.path(outdir, "plots")
 dir.create(plotsdir, recursive = TRUE, showWarnings = FALSE)
@@ -82,47 +64,36 @@ pacman::p_load(nvutils, sct2, Seurat, scCustomize, ggplot2, tidyverse)
 message("\nLoading Seurat: ", seuratfile)
 seurat <- ReadSeurat(seuratfile)
 print(seurat)
+n_cells <- ncol(seurat)
 
-# Downsample the cells that get drawn. DimPlot's `cells` argument is used rather
-# than subset() so the object (and any FOV/spatial fields) is left untouched and
-# the celltype color mapping below still covers every celltype in the object.
-n_total = ncol(seurat)
-if (dsmode == "fraction") {
-  n_keep = floor(n_total * opts$downsample)
-} else if (dsmode == "count") {
-  if (opts$ncells > n_total) {
-    message("NOTE: --ncells ", opts$ncells, " exceeds object size ", n_total, "; plotting all cells")
-  }
-  n_keep = min(opts$ncells, n_total)
-} else {
-  n_keep = n_total
-}
-if (n_keep < 1) {
-  stop("Resolved cells-to-plot is ", n_keep, "; nothing to plot")
-}
-if (n_keep < n_total) {
-  message("\nDownsampling ", n_total, " -> ", n_keep, " cells for plotting (seed ", seed, ")")
-  set.seed(seed)
-  plotcells = sample(Cells(seurat), size = n_keep, replace = FALSE)
-} else {
-  plotcells = Cells(seurat)
-}
-
-md <- seurat[[]]
-if (!celltype %in% colnames(md)) {
+# Capturing metadata here b/c any celltype that loses all its cells drops out
+# and every celltype after it shifts position in colors_polychrome — the same
+# celltype gets a different color at different --downsample values or seeds.
+md_full <- seurat[[]]
+if (!celltype %in% colnames(md_full)) {
   stop("celltype column not found in metadata: ", celltype)
 }
-if (!cluster %in% colnames(md)) {
+if (!cluster %in% colnames(md_full)) {
   stop("cluster column not found in metadata: ", cluster)
 }
 
 # Build the combined <celltype>_<cluster> column (e.g. "OB_3", "Macro_5")
 celltype_cluster <- "celltype_cluster"
-seurat[[celltype_cluster]] <- paste(md[[celltype]], md[[cluster]], sep = "_")
+seurat[[celltype_cluster]] <- paste(md_full[[celltype]], md_full[[cluster]], sep = "_")
+
+# Downsample if requested
+if (opts$downsample != 1) {
+  message("\nDownsampling Seurat...")
+  seurat = DownsampleObject(seurat, downsample = opts$downsample, seed = opts$seed)
+  message("\nDownsampled ", n_cells, " -> ", ncol(seurat), " cells (seed ", opts$seed, ")")
+  print(seurat)
+}
+
 md <- seurat[[]]
 
+
 # One color per celltype (user's standing discrete-color convention)
-labels         <- sort(unique(as.character(md[[celltype]])))
+labels         <- sort(unique(as.character(md_full[[celltype]])))
 celltypecolors <- set_names(colors_polychrome[seq_along(labels)], labels)
 
 # Expand celltype colors to the celltype_cluster values. The mapping is taken
@@ -137,15 +108,18 @@ lc_colors <- set_names(celltypecolors[as.character(lc_map[[celltype]])],
 # Base DimPlot (not DimPlot_scCustom) because `cols` here is a NAMED vector that
 # maps colors to group.by levels by name; scCustomize's colors_use is positional.
 message("\nDimPlot colored by celltype, labeled by celltype_cluster")
+
 # Title names the reduction and the actual metadata columns. Subtitle carries the
 # downsampling note only, so a full-object plot has no subtitle at all.
 title = paste0(toupper(reduction), " colored by ", celltype, " | ", cluster)
-if (n_keep < n_total) {
-  subtitle = paste0("Cells: ", n_keep, " of ", n_total)
+n_keep = ncol(seurat)
+if (n_keep < n_cells) {
+  subtitle = paste0("Cells: ", n_keep, " of ", n_cells)
 } else {
   subtitle = NULL
 }
-DimPlot(seurat, cells = plotcells, group.by = celltype_cluster, cols = lc_colors,
+
+DimPlot(seurat, group.by = celltype_cluster, cols = lc_colors,
         reduction = reduction, label = TRUE, label.size = 4.5, shuffle = TRUE,
         repel = repel) +
   labs(title = title, subtitle = subtitle) +
@@ -154,3 +128,4 @@ ggsave(file.path(plotsdir, outputfile), height = height, width = width, bg = "wh
 
 cat("\n\n")
 devtools::session_info()
+
