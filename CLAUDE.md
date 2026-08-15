@@ -11,9 +11,11 @@ The package ships Seurat objects for testing — use these instead of asking for
 | `pbmc_small` | v3 Seurat, 230 genes x 80 cells. Reductions: `pca`, `tsne` |
 | `pbmc_small_v5` | same object as a v5 Seurat. Reduction: `tsne` only — **no `umap`** |
 | `pbmc_small_sce` | `pbmc_small` as a SingleCellExperiment |
-| `multiome_small` | 6 samples x 20 cells, RNA + ATAC (Signac `ChromatinAssay`) |
+| `multiome_small` | 6 samples x 20 cells, RNA + ATAC (Signac `ChromatinAssay`). Reductions: `umap`, `SCT_pca_umap` — both report assay `SCT`, which is **not** in the object |
 
 Metadata columns on the pbmc objects: `orig.ident`, `nCount_RNA`, `nFeature_RNA`, `RNA_snn_res.0.8`, `RNA_snn_res.1`, `letter.idents`, `groups`.
+
+`multiome_small` metadata is documented in `R/data.R`. Its cluster columns (`SCT_snn_res.0.1`-`0.8`, `HarmSCT_snn_res.0.1`-`0.5`, `seurat_clusters`) all have numerically-ordered factor levels; `LexSCT_snn_res.0.8` is the one column with lexicographic levels (`0`, `1`, `10`, ..., `2`, ...), for testing cluster level ordering.
 
 ## scmap functions are out of scope for testing
 

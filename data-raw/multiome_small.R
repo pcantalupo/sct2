@@ -32,6 +32,12 @@ for (i in seq_along(frags)) {
 }
 multiome_small@assays$ATAC@fragments = frags
 
+# Every *_snn_res.* column has its levels in numerical order. Add a copy of
+# SCT_snn_res.0.8 whose 18 levels are in lexicographic order instead
+# (0, 1, 10, 11, ..., 17, 2, ..., 9) so cluster level ordering can be tested.
+lex = multiome_small$SCT_snn_res.0.8
+multiome_small$LexSCT_snn_res.0.8 = factor(lex, levels = sort(levels(lex)))
+
 saveRDS(multiome_small, "inst/extdata/multiome_small.rds")
 usethis::use_data(multiome_small, overwrite = TRUE)
 
