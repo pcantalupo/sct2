@@ -1,3 +1,9 @@
+# sct2 0.4.4
+
+- Add `LexSCT_snn_res.0.8` to `multiome_small`: the same cluster assignments as `SCT_snn_res.0.8`, but with its 18 factor levels in lexicographic order. Every other cluster column in the object already has numerically ordered levels, so there was no fixture for the case `FixClusterFactorLevels()` exists to fix
+- Rewrite the first test in `test-FixClusterFactorLevels.R` to use `multiome_small` and assert the expected level vectors as literals (#8). It previously used `pbmc_small`, whose three clusters cannot distinguish lexicographic from numeric order, and compared the returned levels to their own sorted version, so it passed against a no-op implementation
+- Document `multiome_small`'s assays, reductions, metadata columns and cluster level ordering
+
 # sct2 0.4.3
 
 - `seurat_dimplot_celltype-cluster.R` uses `DownsampleObject()` instead of its own copy of the sampling logic (#9). Both scripts that downsample now share the exported function
