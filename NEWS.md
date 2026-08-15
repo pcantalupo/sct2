@@ -1,3 +1,9 @@
+# sct2 0.4.3
+
+- `seurat_dimplot_celltype-cluster.R` uses `DownsampleObject()` instead of its own copy of the sampling logic (#9). Both scripts that downsample now share the exported function
+- Remove the `--ncells` flag from `seurat_dimplot_celltype-cluster.R`; pass an absolute count to `--downsample` instead. The default `--downsample` is 1 (no downsampling) and the default `--seed` is 1946
+- `seurat_dimplot_celltype-cluster.R` subsets the object rather than passing `cells =` to `DimPlot()`. The celltype color mapping is built from the full celltype set before the downsample, so a celltype that loses all its cells no longer shifts every subsequent celltype's position in `colors_polychrome`
+
 # sct2 0.4.2
 
 - `seurat_downsample.R` uses `DownsampleObject()` instead of its own copy of the sampling logic (#9). `seurat_dimplot_celltype-cluster.R` still carries its own copy
