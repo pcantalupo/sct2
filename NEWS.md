@@ -1,3 +1,8 @@
+# sct2 0.4.5
+
+- Add `ValidateMetadataCols()` and `ValidateReduction()`, and call them from all three `seurat_dimplot_*.R` scripts in place of each script's own copy of the check (#12). `seurat_dimplot_celltype-cluster.R` previously hand-rolled a per-column `%in%` test with its own message format and reported only the first missing column; it now reports them all at once in the shared format
+- `seurat_dimplot_celltype-cluster.R` and `seurat_dimplot_splitby-colorby.R` validate `--reduction` against the object's reductions. Neither checked it before, so a bad value failed later inside `DimPlot()`
+
 # sct2 0.4.4
 
 - Add `LexSCT_snn_res.0.8` to `multiome_small`: the same cluster assignments as `SCT_snn_res.0.8`, but with its 18 factor levels in lexicographic order. Every other cluster column in the object already has numerically ordered levels, so there was no fixture for the case `FixClusterFactorLevels()` exists to fix
