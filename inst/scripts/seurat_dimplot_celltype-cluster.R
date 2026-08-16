@@ -70,12 +70,8 @@ n_cells <- ncol(seurat)
 # and every celltype after it shifts position in colors_polychrome — the same
 # celltype gets a different color at different --downsample values or seeds.
 md_full <- seurat[[]]
-if (!celltype %in% colnames(md_full)) {
-  stop("celltype column not found in metadata: ", celltype)
-}
-if (!cluster %in% colnames(md_full)) {
-  stop("cluster column not found in metadata: ", cluster)
-}
+ValidateMetadataCols(seurat, c(celltype, cluster))
+ValidateReduction(seurat, reduction)
 
 # Build the combined <celltype>_<cluster> column (e.g. "OB_3", "Macro_5")
 celltype_cluster <- "celltype_cluster"

@@ -70,11 +70,9 @@ message("\nLoading Seurat object from ", seuratfile)
 seurat <- ReadSeurat(seuratfile)
 print(seurat)
 
-# Validate requested metadata columns exist
-missing_cols <- setdiff(c(splitby, colorby), colnames(seurat[[]]))
-if (length(missing_cols) > 0) {
-  stop("Metadata column(s) not found in Seurat object: ", paste(missing_cols, collapse = ", "))
-}
+# Validate requested metadata columns and reduction exist
+ValidateMetadataCols(seurat, c(splitby, colorby))
+ValidateReduction(seurat, reduction)
 
 # Coerce colorby to a factor so every split panel shares one color scale and a
 # single unified legend. A character colorby makes DimPlot_scCustom build a

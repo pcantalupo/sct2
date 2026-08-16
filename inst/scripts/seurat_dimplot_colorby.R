@@ -71,17 +71,11 @@ message("\nLoading Seurat object from ", seuratfile)
 seurat <- ReadSeurat(seuratfile)
 print(seurat)
 
-if (!reduction %in% Reductions(seurat)) {
-  stop("Reduction not found: '", reduction, "'. Available: ",
-       paste(Reductions(seurat), collapse = ", "))
-}
+ValidateReduction(seurat, reduction)
 
 # Validate every requested column up front so a typo fails before the first
 # (slow) plot rather than partway through the loop.
-missing_cols <- setdiff(colorby, colnames(seurat[[]]))
-if (length(missing_cols) > 0) {
-  stop("Metadata column(s) not found in Seurat object: ", paste(missing_cols, collapse = ", "))
-}
+ValidateMetadataCols(seurat, colorby)
 
 
 ################## Plot each --colorby column ###################
