@@ -141,3 +141,5 @@ seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.
 | `TwoSample_scmapCluster()` | Map cell types between two datasets using scmap |
 | `ReadSeurat()` | Read a Seurat object from an RDS or QS2 file |
 | `WriteSeurat()` | Write a Seurat object to an RDS or QS2 file |
+| `ValidateMetadataCols()` | Stop if any of the given metadata columns are missing from a Seurat object |
+| `ValidateReduction()` | Stop, listing the available reductions, if a reduction is missing from a Seurat object |
