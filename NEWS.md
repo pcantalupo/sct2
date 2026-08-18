@@ -1,3 +1,8 @@
+# sct2 0.4.6
+
+- `SeuratInfo()` ends with `invisible(df)` and documents a `@return` tag, so the assay table is a declared return value rather than a side effect of the final `print.data.frame` call (#7)
+- Convert `test-SeuratInfo.R` to `expect_snapshot()`. The two `expect_equal()` assertions covered only the assay table; the snapshot captures the whole printed report, including the version line, graphs, reductions, ident label and `Idents()` counts, none of which were tested before
+
 # sct2 0.4.5
 
 - Add `ValidateMetadataCols()` and `ValidateReduction()`, and call them from all three `seurat_dimplot_*.R` scripts in place of each script's own copy of the check (#12). `seurat_dimplot_celltype-cluster.R` previously hand-rolled a per-column `%in%` test with its own message format and reported only the first missing column; it now reports them all at once in the shared format
