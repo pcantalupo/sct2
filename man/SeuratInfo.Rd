@@ -12,10 +12,19 @@ SeuratInfo(seurat, metadata = FALSE)
 \item{metadata}{Show metadata? (default FALSE)}
 }
 \value{
-data.frame
+Invisibly, an object of class `seurat_info`: a list with elements
+  `version` (character), `metadata` (the metadata data.frame when
+  `metadata = TRUE`, otherwise `NULL`), `graphs` (character), `reductions`
+  (character, named by reduction name, values are the assay used), `images`
+  (character), `ident_label` (character), `idents` (a table of cell counts per
+  ident) and `assays` (a data.frame with one row per assay). Formatting lives
+  in [print.seurat_info()].
 }
 \description{
 Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default.
+
+The report is printed and the gathered information is returned invisibly as a
+`seurat_info` object, so the printing behaviour is unchanged at every call site.
 }
 \examples{
 

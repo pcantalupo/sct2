@@ -1,9 +1,18 @@
 #' @title SeuratInfo
 #' @description
 #' Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default.
+#'
+#' The report is printed and the gathered information is returned invisibly as a
+#' `seurat_info` object, so the printing behaviour is unchanged at every call site.
 #' @param seurat A Seurat object
 #' @param metadata Show metadata? (default FALSE)
-#' @return data.frame
+#' @return Invisibly, an object of class `seurat_info`: a list with elements
+#'   `version` (character), `metadata` (the metadata data.frame when
+#'   `metadata = TRUE`, otherwise `NULL`), `graphs` (character), `reductions`
+#'   (character, named by reduction name, values are the assay used), `images`
+#'   (character), `ident_label` (character), `idents` (a table of cell counts per
+#'   ident) and `assays` (a data.frame with one row per assay). Formatting lives
+#'   in [print.seurat_info()].
 #' @export
 #' @importFrom SeuratObject LayerData GetAssayData DefaultAssay VariableFeatures
 #' @importFrom utils head str
@@ -12,39 +21,31 @@
 #' SeuratInfo(pbmc_small)
 #'
 SeuratInfo = function(seurat, metadata = FALSE) {
-  cat("Seurat version: ", as.character(seurat@version), "\n")
+  version = as.character(seurat@version)
 
   # Metadata
   if (metadata) {
-    cat("\nMetadata: ")
-    cat(str(seurat[[]]))
+    metadata_df = seurat[[]]
+  } else {
+    metadata_df = NULL
   }
 
   # Graphs
-  cat(paste0("\nGraphs: ", paste(names(seurat@graphs), collapse = ", ")))
+  graphs = names(seurat@graphs)
 
   # Reductions
-  assayused = sapply(names(seurat@reductions), function(name) {
+  assayused = vapply(names(seurat@reductions), function(name) {
     return(seurat[[name]]@assay.used)
-  })
-  cat(paste0("\nReductions: ", paste(names(assayused), " (", assayused, ")", sep = "",
-                                     collapse = ", ")))
+  }, character(1))
 
   # Images
-  if (length(seurat@images) > 0) {
-    cat("\nImages: ", paste(names(seurat@images), collapse = ", "))
-  }
+  images = names(seurat@images)
 
   # Idents
-  cat("\nIdent label:", FindIdentLabel(seurat))
-  cat("\nIdents():\n")
-  tab = table(Idents(seurat))
-  df = data.frame(Count = as.integer(tab))
-  rownames(df) = rownames(tab)
-  print(t(df))
+  ident_label = FindIdentLabel(seurat)
+  idents = table(Idents(seurat))
 
   # Assays
-  cat("\nAssays:\n")
   assays = names(seurat@assays)
   default_assay = DefaultAssay(seurat)
 
@@ -86,7 +87,17 @@ SeuratInfo = function(seurat, metadata = FALSE) {
 
   df = data.frame(do.call(rbind, slotinfo))
   colnames(df) = c("default", slots, "HVGs")
-  print(df)
-  invisible(df)
-}
 
+  x = structure(list(version = version,
+                     metadata = metadata_df,
+                     graphs = graphs,
+                     reductions = assayused,
+                     images = images,
+                     ident_label = ident_label,
+                     idents = idents,
+                     assays = df),
+                class = "seurat_info")
+
+  print(x)
+  invisible(x)
+}

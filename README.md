@@ -130,7 +130,8 @@ seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.
 
 | Function | Description |
 |---|---|
-| `SeuratInfo()` | Summarize a Seurat object (idents, metadata, assays, reductions, graphs) |
+| `SeuratInfo()` | Summarize a Seurat object (idents, metadata, assays, reductions, graphs); prints the report and returns it invisibly as a `seurat_info` object |
+| `print.seurat_info()` | Print method for the `seurat_info` object returned by `SeuratInfo()` |
 | `SignacInfo()` | Summarize Signac ChromatinAssays within a Seurat object |
 | `FindIdentLabel()` | Find the metadata column name that matches the active ident |
 | `SaveMetadata()` | Save Seurat metadata to a TSV, RDS or QS2 file |
