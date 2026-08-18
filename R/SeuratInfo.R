@@ -3,6 +3,7 @@
 #' Show information about the Seurat object such as a table of the Idents and the first two rows of metadata. In addition, shows the available Reductions and Graphs. It shows a table of information about the Assays in the object and shows which Assay is the default.
 #' @param seurat A Seurat object
 #' @param metadata Show metadata? (default FALSE)
+#' @return data.frame
 #' @export
 #' @importFrom SeuratObject LayerData GetAssayData DefaultAssay VariableFeatures
 #' @importFrom utils head str
@@ -86,5 +87,6 @@ SeuratInfo = function(seurat, metadata = FALSE) {
   df = data.frame(do.call(rbind, slotinfo))
   colnames(df) = c("default", slots, "HVGs")
   print(df)
+  invisible(df)
 }
 
