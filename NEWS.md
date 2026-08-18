@@ -1,3 +1,9 @@
+# sct2 0.4.7
+
+- Split `SeuratInfo()` into data gathering and formatting. It now builds a `seurat_info` classed list holding the version, metadata, graphs, reductions, images, ident label, idents table and assay table, prints it, and returns it invisibly. All formatting lives in the new exported `print.seurat_info()`. The printed report is unchanged, so every call site behaves as before
+- **Breaking**: `SeuratInfo()` returns a `seurat_info` list instead of the assay `data.frame`. The former return value is preserved verbatim as the `assays` element, so `SeuratInfo(x)` becomes `SeuratInfo(x)$assays`
+- Add structure assertions to `test-SeuratInfo.R`, plus snapshots for the `metadata = TRUE` branch and for `multiome_small`, which covers the multi-assay table and reductions reporting an assay absent from the object
+
 # sct2 0.4.6
 
 - `SeuratInfo()` ends with `invisible(df)` and documents a `@return` tag, so the assay table is a declared return value rather than a side effect of the final `print.data.frame` call (#7)
