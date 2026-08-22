@@ -14,8 +14,26 @@ devtools::install_github("pcantalupo/sct2")
 library(sct2)
 
 # Summarize a Seurat object
-SeuratInfo(pbmc_small)
+SeuratInfo(multiome_small)
+```
 
+```
+Seurat version:  5.1.0 
+
+Graphs: 
+Reductions: SCT_pca_umap (SCT), umap (SCT)
+Ident label: orig.ident
+Idents():
+       2  3  4 5a 5b  6
+Count 20 20 20 20 20 20
+
+Assays:
+     default  counts    data scale.data HVGs
+RNA      YES 100x120 100x120      7x120    7
+ATAC         100x120 100x120        0x0    0
+```
+
+```r
 # Summarize Signac ChromatinAssays
 SignacInfo(multiome_small)
 
@@ -36,6 +54,10 @@ seurat = ReadSeurat("pbmc_small.qs2")
 Scripts are in `inst/scripts/`. Symlink them from a directory on your `PATH` (e.g. `~/bin/`) to run them by name.
 
 All scripts read `.rds`/`.RDS` or `.qs2`, inferred from the file extension.
+
+There are two general types of scripts: object information/manipulation and plotting. Get help for each script by passing `--help`
+
+### Object Info/Manipulation
 
 **seurat_info.R** — print a summary of a Seurat object
 
@@ -58,7 +80,7 @@ seurat_downsample.R --seurat object.qs2 --downsample 0.05   # keep 5% of cells
 seurat_downsample.R --seurat object.qs2 --downsample 50000  # keep 50k cells
 ```
 
-Default output adds a `_ds<tag>` to the input basename and writes to the current directory (`--outfile` to override). `--downsample` is overloaded: a value of 1 or less is a fraction of cells to keep, a value above 1 is an absolute cell count. A fraction tags as a percentage (`0.3` → `_ds30`) and a count tags in thousands with a trailing `k` (`30` → `_ds0.03k`, `50000` → `_ds50k`), so the two never collide. A count larger than the object is an error rather than a no-op, since the `_ds<tag>` is resolved before the object is read and would otherwise name a downsample that never happened. Sampling uses a fixed `--seed` (default 1946). Use `--update` for objects written under an older SeuratObject, and `--force` to overwrite an existing output.
+Default output adds a `_ds<tag>` to the input basename and writes to the current directory (`--outfile` to override). `--downsample` is overloaded: a value of 1 or less is a fraction of cells to keep, a value above 1 is an absolute cell count. A fraction tags as a percentage (`0.3` → `_ds30`) and a count tags in thousands with a trailing `k` (`30` → `_ds0.03k`, `50000` → `_ds50k`), so the two never collide. A count larger than the object is an error rather than a no-op, since the `_ds<tag>` is resolved before the object is read and would otherwise name a downsample that never happened.
 
 **seurat_update_object.R** — run `UpdateSeuratObject()` and save
 
@@ -77,6 +99,8 @@ seurat_strip_scaledata.R --seurat object.qs2 --outfile object_slim.qs2    # writ
 
 Without `--outfile`, the input is overwritten in place; `--force` overwrites an existing `--outfile`. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`. Removes all `scale.data*` layers from v5 assays and clears the `@scale.data` slot of v3 assays.
 
+### Plotting
+
 **seurat_dimplot_celltype-cluster.R** — UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column so every cluster of a celltype shares that celltype's color while staying individually labeled
 
 ```bash
@@ -84,21 +108,15 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster
 seurat_dimplot_celltype-cluster.R --seurat object.qs2 --downsample 0.1   # plot 10% of cells (or --downsample 2000 to plot 2000 cells)
 ```
 
-Writes a PNG to `<outdir>/plots/` (`--outdir` defaults to `.`). Override the reduction with `--reduction`, the filename with `--outputfile`, the plot size with `--height`/`--width`, and pass `--repel` to repel the cluster labels. Use `--downsample` (fraction or absolute number of cells >= 2) to randomly downsample the Seurat object with a fixed `--seed`; cell count is noted in the plot subtitle.
+Writes a PNG to `<outdir>/plots/` (`--outdir` defaults to `.`). Override the reduction with `--reduction`, the filename with `--outputfile`. Cell count is noted in the plot subtitle.
 
-**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend.
+**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend. Writes a PNG to `plots/` by default.
 
 ```bash
 seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 --colorby orig.ident
 ```
 
-Writes a PNG to `plots/` by default. Override the reduction with `--reduction`, the output path with `--outputfile`, the plot size with `--height`/`--width`, and toggle cluster labels with `--label`/`--label_size`/`--repel`.
-
-The panel grid is not configurable. `DimPlot_scCustom` assembles the per-level plots with `patchwork::wrap_plots()` and no `ncol`, so the layout falls through to `ggplot2:::wrap_dims()`, which calls `grDevices::n2mfrow(n)` on the number of `--splitby` levels. That function is landscape-biased, so it does not always produce a square-ish grid. Predict the layout without loading the object:
-
-```bash
-Rscript -e 'n <- 3; cat(rev(grDevices::n2mfrow(n)), "\n")'   # -> 1 3  (1 row, 3 columns)
-```
+The panel grid is not configurable. `scCustomize::DimPlot_scCustom` assembles the per-level plots with `patchwork::wrap_plots()` and no `ncol`, so the layout falls through to `ggplot2:::wrap_dims()`. So it does not always produce a square-ish grid. The below table shows the grid layout for the number of `--splitby` levels
 
 | `--splitby` levels | rows × columns |
 |---|---|
@@ -116,7 +134,7 @@ seurat_dimplot_colorby.R --seurat object.qs2 --colorby RNA_snn_res.0.8
 seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.8,singleR_cluster_labels
 ```
 
-`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column to `<outdir>/plots/` (`--outdir` defaults to `.`), named `<REDUCTION>_colored_by_<colorby>.png`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels. Override the reduction with `--reduction`, the plot size with `--height`/`--width`, and toggle labels with `--label`/`--label_size`/`--repel`.
+`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column to `<outdir>/plots/` (`--outdir` defaults to `.`), named `<REDUCTION>_colored_by_<colorby>.png`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels.
 
 **seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
 
@@ -124,7 +142,7 @@ seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.
 seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.0.8 --n_top_genes 5
 ```
 
-`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents`, the number of genes per cluster with `--n_top_genes`, and the output PNG with `--output_path`. Adjust the plot with `--title`, `--labelsize`, `--rotatelabels`, `--width`, and `--height`.
+`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents`, the number of genes per cluster with `--n_top_genes`, and the output PNG with `--output_path`. 
 
 ## Functions
 
