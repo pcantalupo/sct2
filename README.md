@@ -101,6 +101,19 @@ Without `--outfile`, the input is overwritten in place; `--force` overwrites an 
 
 ### Plotting
 
+All four plotting scripts share these options:
+
+| Option | Default | Notes |
+|---|---|---|
+| `--seurat` | required | Input object, `.rds` or `.qs2` |
+| `--outdir` | `plots` | Written to directly; created after argument validation |
+| `--outputfile` | derived | Filename only — a value containing `/` is rejected. Not available on `seurat_dimplot_colorby.R`, which writes one file per column |
+| `--reduction` | `umap` | Not available on `seurat_dotplot.R` |
+| `--width` | `7` | Inches |
+| `--height` | `7` | Inches; `9` for `seurat_dotplot.R` |
+
+Derived filenames start with `toupper(reduction)`, so `--reduction tsne` writes `TSNE_*`. Each script's derived name is listed with it below.
+
 **seurat_dimplot_celltype-cluster.R** — UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column so every cluster of a celltype shares that celltype's color while staying individually labeled
 
 ```bash
@@ -108,9 +121,9 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster
 seurat_dimplot_celltype-cluster.R --seurat object.qs2 --downsample 0.1   # plot 10% of cells (or --downsample 2000 to plot 2000 cells)
 ```
 
-Writes a PNG to `--outdir` (defaults to `plots`). `--outputfile` sets the filename only — a value containing `/` is rejected. The default filename is `<REDUCTION>_colored_by_<celltype>_<cluster>.png`, so `--reduction` changes both the reduction plotted and the name. Cell count is noted in the plot subtitle.
+Filename: `<REDUCTION>_colored_by_<celltype>_<cluster>.png`. Cell count is noted in the plot subtitle.
 
-**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend. Writes a PNG to `--outdir` (defaults to `plots`), named `<REDUCTION>_split-<splitby>_color-<colorby>.png`; `--outputfile` sets the filename only.
+**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend. Filename: `<REDUCTION>_split-<splitby>_color-<colorby>.png`.
 
 ```bash
 seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 --colorby orig.ident
@@ -134,7 +147,7 @@ seurat_dimplot_colorby.R --seurat object.qs2 --colorby RNA_snn_res.0.8
 seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.8,singleR_cluster_labels
 ```
 
-`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column to `--outdir` (defaults to `plots`), named `<REDUCTION>_colored_by_<colorby>.png`. Because it writes one file per column there is no `--outputfile`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels.
+`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column. Filename: `<REDUCTION>_colored_by_<colorby>.png`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels.
 
 **seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
 
@@ -142,7 +155,7 @@ seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.
 seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.0.8 --n_top_genes 5
 ```
 
-`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents` and the number of genes per cluster with `--n_top_genes`. Writes a PNG to `--outdir` (defaults to `plots`), named `dotplot_top<n_top_genes>_<idents>.png`; `--outputfile` sets the filename only.
+`--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents` and the number of genes per cluster with `--n_top_genes`. Filename: `dotplot_top<n_top_genes>_<idents>.png`.
 
 ## Functions
 
