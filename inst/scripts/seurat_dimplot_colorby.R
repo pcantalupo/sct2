@@ -26,8 +26,8 @@ option_list <- list(
               help = "Plot height in inches [default: %default]"),
   make_option("--width", default = 7, type = "double",
               help = "Plot width in inches [default: %default]"),
-  make_option("--outdir", default = ".", type = "character",
-              help = "Output directory; PNGs are written to <outdir>/plots [default: %default]")
+  make_option("--outdir", default = "plots", type = "character",
+              help = "Output directory [default: %default]")
 )
 opt_parser <- OptionParser(option_list = option_list)
 opts <- parse_args(opt_parser)
@@ -54,8 +54,7 @@ if (length(colorby) == 0) {
   stop("--colorby is required")
 }
 
-plotsdir <- file.path(outdir, "plots")
-dir.create(plotsdir, recursive = TRUE, showWarnings = FALSE)
+dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 message("\nArguments:")
 print(opts)
@@ -94,7 +93,7 @@ for (col in colorby) {
                         label = label, label.size = label_size, repel = repel) +
     labs(title = paste0(toupper(reduction), " colored by ", col))
 
-  outputfile <- file.path(plotsdir, paste0(toupper(reduction), "_colored_by_", col, ".png"))
+  outputfile <- file.path(outdir, paste0(toupper(reduction), "_colored_by_", col, ".png"))
   message("Saving to ", outputfile)
   ggsave(outputfile, plot = p, height = height, width = width, bg = "white")
   outputfiles <- c(outputfiles, outputfile)
@@ -102,7 +101,7 @@ for (col in colorby) {
 
 
 ################## Summary ###################
-message("\nDone. ", length(outputfiles), " plot(s) saved to ", plotsdir, ":")
+message("\nDone. ", length(outputfiles), " plot(s) saved to ", outdir, ":")
 for (f in outputfiles) {
   message("  ", basename(f))
 }

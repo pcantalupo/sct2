@@ -5,25 +5,27 @@ pdf(NULL)
 
 # Define the options
 option_list <- list(
-  make_option(c("-s", "--seurat"), type="character", default=NULL,
+  make_option("--seurat", type="character", default=NULL,
               help="Path to the input Seurat object (.qs2 or .rds/.RDS) [required]"),
-  make_option(c("-m", "--markers"), type="character", default="rds/markers.rds",
+  make_option("--markers", type="character", default="rds/markers.rds",
               help="Path to the markers RDS [required]"),
-  make_option(c("-i", "--idents"), type="character", default="RNA_snn_res.0.8",
+  make_option("--idents", type="character", default="RNA_snn_res.0.8",
               help="Metadata field to use to set the Seurat Idents [default: %default]"),
-  make_option(c("-n", "--n_top_genes"), type="integer", default=5,
+  make_option("--n_top_genes", type="integer", default=5,
               help="Number of top genes to select [default: %default]"),
-  make_option(c("-t", "--title"), type="character", default="Top 5 up",
+  make_option("--title", type="character", default="Top 5 up",
               help="Title of the plot [default: %default]"),
-  make_option(c("-z", "--labelsize"), type="integer", default=8,
+  make_option("--labelsize", type="integer", default=8,
               help="Gene label size [default: %default]"),
-  make_option(c("-r", "--rotatelabels"), type="logical", default=TRUE,
+  make_option("--rotatelabels", type="logical", default=TRUE,
               help="Rotate identity labels? [default: %default]"),
-  make_option(c("-o", "--output_path"), type="character", default="dotplot_top5up.png",
-              help="Path to save the plot [default: %default]"),
-  make_option(c("-w", "--width"), type="integer", default=7,
+  make_option("--outputfile", type="character", default="",
+              help="Output PNG filename, no directory component [default: dotplot_top<n_top_genes>_<idents>.png]"),
+  make_option("--outdir", type="character", default="plots",
+              help="Output directory [default: %default]"),
+  make_option("--width", type="integer", default=7,
               help="Width of the saved image [default: %default]"),
-  make_option(c("-g", "--height"), type="integer", default=9,
+  make_option("--height", type="integer", default=9,
               help="Height of the saved image [default: %default]")
 )
 
@@ -49,12 +51,15 @@ if (is.null(opts$markers) || opts$markers == "") {
   stop("Error: The file ", opts$markers, " does not exist.\n")
 }
 
-# Possible code for dynamically setting the output file name
-# if (is.null(opts$output_path)) {
-#   markerfilebasename = base::basename(tools::file_path_sans_ext(opts$markers))
-#   opts$output_path = paste0("dotplot_top", opts$n_top_genes, markerfilebasename, "_", opts$idents, ".png")
-# }
-# message("Output file name is: ", opts$output_path); message("\n")
+if (grepl("/", opts$outputfile, fixed = TRUE)) {
+  stop("--outputfile must be a filename, not a path; use --outdir for the directory")
+}
+
+if (is.null(opts$outputfile) || opts$outputfile == "") {
+  opts$outputfile = paste0("dotplot_top", opts$n_top_genes, "_", opts$idents, ".png")
+}
+
+dir.create(opts$outdir, recursive = TRUE, showWarnings = FALSE)
 
 pacman::p_load(sct2, Seurat, ggplot2, dplyr)
 
@@ -90,7 +95,7 @@ if (!is.null(opts$rotatelabels)) {
   gg <- gg + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 }
 gg
-ggsave(opts$output_path, width = opts$width, height = opts$height, bg = "white")
+ggsave(file.path(opts$outdir, opts$outputfile), width = opts$width, height = opts$height, bg = "white")
 
 
 cat("\n\n")

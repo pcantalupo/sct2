@@ -21,8 +21,8 @@ option_list <- list(
               help = "RNG seed for sampling [default: %default]"),
   make_option("--height",   default = 7,                      type = "double",    help = "Plot height in inches [default: %default]"),
   make_option("--width",    default = 7,                      type = "double",    help = "Plot width in inches [default: %default]"),
-  make_option("--outputfile", default = "",                   type = "character", help = "Output PNG filename [default: UMAP_colored_by_<celltype>_<cluster>.png]"),
-  make_option("--outdir",   default = ".",                    type = "character", help = "Output directory [default: %default]")
+  make_option("--outputfile", default = "",                   type = "character", help = "Output PNG filename, no directory component [default: <REDUCTION>_colored_by_<celltype>_<cluster>.png]"),
+  make_option("--outdir",   default = "plots",                type = "character", help = "Output directory [default: %default]")
 )
 opt_parser <- OptionParser(option_list = option_list)
 opts <- parse_args(opt_parser)
@@ -42,8 +42,12 @@ if (is.null(seuratfile) || seuratfile == "" || !file.exists(seuratfile)) {
   stop("--seurat must be an existing Seurat object (.rds or .qs2)")
 }
 
+if (grepl("/", opts$outputfile, fixed = TRUE)) {
+  stop("--outputfile must be a filename, not a path; use --outdir for the directory")
+}
+
 if (is.null(opts$outputfile) || opts$outputfile == "") {
-  opts$outputfile <- paste0("UMAP_colored_by_", celltype, "_", cluster, ".png")
+  opts$outputfile <- paste0(toupper(reduction), "_colored_by_", celltype, "_", cluster, ".png")
 }
 outputfile <- opts$outputfile
 
@@ -51,8 +55,7 @@ if (opts$downsample <= 0) {
   stop("--downsample must be > 0")
 }
 
-plotsdir <- file.path(outdir, "plots")
-dir.create(plotsdir, recursive = TRUE, showWarnings = FALSE)
+dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 message("\nArguments:")
 print(opts)
@@ -120,7 +123,7 @@ DimPlot(seurat, group.by = celltype_cluster, cols = lc_colors,
         repel = repel) +
   labs(title = title, subtitle = subtitle) +
   theme(plot.subtitle = element_text(hjust = 0.5))
-ggsave(file.path(plotsdir, outputfile), height = height, width = width, bg = "white")
+ggsave(file.path(outdir, outputfile), height = height, width = width, bg = "white")
 
 cat("\n\n")
 devtools::session_info()

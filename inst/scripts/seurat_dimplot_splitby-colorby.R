@@ -28,7 +28,9 @@ option_list <- list(
   make_option("--width", default = 7, type = "double",
               help = "Plot width in inches [default: %default]"),
   make_option("--outputfile", default = "", type = "character",
-              help = "Output PNG path [default: plots/UMAP_split-<splitby>_color-<colorby>.png]")
+              help = "Output PNG filename, no directory component [default: <REDUCTION>_split-<splitby>_color-<colorby>.png]"),
+  make_option("--outdir", default = "plots", type = "character",
+              help = "Output directory [default: %default]")
 )
 opt_parser <- OptionParser(option_list = option_list)
 opts <- parse_args(opt_parser)
@@ -43,19 +45,23 @@ label_size <- opts$label_size
 repel      <- opts$repel
 height     <- opts$height
 width      <- opts$width
+outdir     <- opts$outdir
 
 if (is.null(seuratfile) || seuratfile == "" || !file.exists(seuratfile)) {
   print_help(opt_parser)
   stop("--seurat must be an existing Seurat object (.rds or .qs2)")
 }
 
-plotsdir <- "plots"
+if (grepl("/", opts$outputfile, fixed = TRUE)) {
+  stop("--outputfile must be a filename, not a path; use --outdir for the directory")
+}
+
 if (is.null(opts$outputfile) || opts$outputfile == "") {
-  opts$outputfile <- file.path(plotsdir, paste0("UMAP_split-", splitby, "_color-", colorby, ".png"))
+  opts$outputfile <- paste0(toupper(reduction), "_split-", splitby, "_color-", colorby, ".png")
 }
 outputfile <- opts$outputfile
 
-dir.create(dirname(outputfile), recursive = TRUE, showWarnings = FALSE)
+dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 message("\nArguments:")
 print(opts)
@@ -95,8 +101,8 @@ p <- DimPlot_scCustom(seurat, reduction = reduction, split.by = splitby,
                       group.by = colorby, label = label, label.size = label_size,
                       repel = repel)
 
-message("Saving to ", outputfile)
-ggsave(outputfile, plot = p, height = height, width = width, bg = "white")
+message("Saving to ", file.path(outdir, outputfile))
+ggsave(file.path(outdir, outputfile), plot = p, height = height, width = width, bg = "white")
 
 
 cat("\n\n")
