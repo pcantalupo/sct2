@@ -1,3 +1,13 @@
+# sct2 0.5.0
+
+- Unify the output-path options across all four plotting scripts. Each takes `--outdir`, default `plots`, and writes directly into it rather than appending a `plots` component. The three scripts that write a single PNG take `--outputfile`, default `""` meaning derive; it is a filename only and a value containing `/` is rejected. `seurat_dimplot_colorby.R` has no `--outputfile` because it writes one PNG per `--colorby` column
+- **Breaking**: `--outdir X` now writes to `X/` rather than `X/plots/`
+- **Breaking**: `seurat_dotplot.R` drops all ten short options (`-s`, `-m`, `-i`, `-n`, `-t`, `-z`, `-r`, `-o`, `-w`, `-g`) and replaces `--output_path` with `--outputfile` plus `--outdir`, matching the long-only convention of every other script in `inst/scripts/`. Its derived filename is `dotplot_top<n_top_genes>_<idents>.png`, replacing the literal `dotplot_top5up.png` default
+- Derived filenames interpolate `toupper(reduction)` instead of the literal `UMAP`, so a `--reduction tsne` run no longer writes a file named `UMAP_*`
+- `dir.create(outdir)` runs after every validation `stop()`, so a failed invocation leaves no empty directory behind
+- `seurat_dimplot_colorby.R` names its output pattern in `--help`; it is the one plotting script without an `--outputfile` default to carry it
+- Collect the plotting scripts' shared options into one table in the README, replacing the per-script prose that repeated them
+
 # sct2 0.4.7
 
 - Split `SeuratInfo()` into data gathering and formatting. It now builds a `seurat_info` classed list holding the version, metadata, graphs, reductions, images, ident label, idents table and assay table, prints it, and returns it invisibly. All formatting lives in the new exported `print.seurat_info()`. The printed report is unchanged, so every call site behaves as before
