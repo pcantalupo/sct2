@@ -27,7 +27,7 @@ option_list <- list(
   make_option("--width", default = 7, type = "double",
               help = "Plot width in inches [default: %default]"),
   make_option("--outdir", default = "plots", type = "character",
-              help = "Output directory [default: %default]")
+              help = "Output directory; one PNG per --colorby column, named <REDUCTION>_colored_by_<colorby>.png [default: %default]")
 )
 opt_parser <- OptionParser(option_list = option_list)
 opts <- parse_args(opt_parser)
