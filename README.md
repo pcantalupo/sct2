@@ -101,7 +101,7 @@ Without `--outfile`, the input is overwritten in place; `--force` overwrites an 
 
 ### Plotting
 
-All four plotting scripts share these options:
+All four plotting scripts share these options (pass the `--help` for more info):
 
 | Option | Default | Notes |
 |---|---|---|
@@ -113,6 +113,15 @@ All four plotting scripts share these options:
 | `--height` | `7` | Inches; `9` for `seurat_dotplot.R` |
 
 Derived filenames start with `toupper(reduction)`, so `--reduction tsne` writes `TSNE_*`. Each script's derived name is listed with it below.
+
+**seurat_dimplot_colorby.R** — one UMAP DimPlot per `--colorby` metadata column (mapped to `group.by`)
+
+```bash
+seurat_dimplot_colorby.R --seurat object.qs2 --colorby RNA_snn_res.0.8
+seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.8,singleR_cluster_labels
+```
+
+`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column. Filename: `<REDUCTION>_colored_by_<colorby>.png`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels.
 
 **seurat_dimplot_celltype-cluster.R** — UMAP DimPlot colored by celltype, labeled by a combined `<celltype>_<cluster>` column so every cluster of a celltype shares that celltype's color while staying individually labeled
 
@@ -139,15 +148,6 @@ The panel grid is not configurable. `scCustomize::DimPlot_scCustom` assembles th
 | 5 | 2 × 3 |
 | 6 | 2 × 3 |
 | 7–9 | 3 × 3 |
-
-**seurat_dimplot_colorby.R** — one UMAP DimPlot per `--colorby` metadata column (mapped to `group.by`)
-
-```bash
-seurat_dimplot_colorby.R --seurat object.qs2 --colorby RNA_snn_res.0.8
-seurat_dimplot_colorby.R --seurat object.qs2 --colorby orig.ident,RNA_snn_res.0.8,singleR_cluster_labels
-```
-
-`--colorby` takes a comma-separated list, so the object is loaded once and one PNG is written per column. Filename: `<REDUCTION>_colored_by_<colorby>.png`. All columns are validated before the first plot is drawn. Non-factor colorby columns are coerced to a factor with naturally sorted levels.
 
 **seurat_dotplot.R** — DotPlot of the top up-regulated genes per cluster from a markers table
 
