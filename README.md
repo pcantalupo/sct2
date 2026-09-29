@@ -127,8 +127,8 @@ All files are named `composition_<group_var>_<comp_var>_*`, with characters outs
 
 | Output | Contents |
 |---|---|
-| `_pooled_counts.tsv`, `_pooled_pct_of_group.tsv`, `_pooled_pct_of_comp.tsv`, `_pooled.xlsx` | Pooled counts with totals, share of each group, and where each comp level lives |
-| `_per_sample.tsv/.xlsx` | One row per sample x group x comp level: `n`, `total`, `prop`. Absent comp levels are 0 |
+| `_pooled.tsv/.xlsx` | One row per comp level plus a `Total` row. Per group: `<group>_n`, `<group>_pct_of_group` (share of the group's cells) and `<group>_pct_of_comp` (share of the comp level's cells); `Total_n` is the comp level size |
+| `_per_sample.tsv/.xlsx` | One row per sample x group x comp level: `n`, `total`, `prop`, and `transformed_prop`, the value limma fits. Absent comp levels are 0. The logit transform adds 0.5 to every count first, so `transformed_prop` is not exactly `logit(prop)` |
 | `_enrichment.tsv/.xlsx` | Pooled log2(observed / expected). Descriptive only |
 | `_stats.tsv/.xlsx` | One row per contrast x comp level: mean proportions, `prop_ratio`, `estimate` (difference on the transformed scale), `t`, `p_value`, `fdr` (BH within contrast), `model` |
 | `_pooled_stackedbar.png` | Pooled composition per group |

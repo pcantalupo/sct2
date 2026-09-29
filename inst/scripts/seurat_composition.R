@@ -80,7 +80,7 @@ message("")
 #################################################
 
 
-pacman::p_load(nvutils, sct2, speckle, limma, janitor, gtools, tidyverse)
+pacman::p_load(nvutils, sct2, speckle, limma, gtools, tidyverse)
 
 
 # Slug a value for use in a file or directory name: labels like CAF/MSC exist.
@@ -207,22 +207,26 @@ write_table = function(df, name) {
 
 
 ################## Table 1: pooled counts and percentages ###################
+# One wide table: per group, the cell count (n), the share of the group's cells
+# (pct_of_group) and the share of the comp level's cells (pct_of_comp). A
+# "Total" row gives group sizes; a Total_n column gives comp level sizes.
 message("\nPooled composition")
-pooled = md %>% tabyl(comp, group)
-names(pooled)[1] = comp_var
-pooled_colpct = pooled %>% adorn_percentages("col") %>% as_tibble()
-pooled_rowpct = pooled %>% adorn_percentages("row") %>% as_tibble()
-pooled_counts = pooled %>% adorn_totals(c("row", "col")) %>% as_tibble()
-
-pooled_path = file.path(resultsdir, paste0(outname, "_pooled"))
-write_tsv(pooled_counts, paste0(pooled_path, "_counts.tsv"))
-write_tsv(pooled_colpct, paste0(pooled_path, "_pct_of_group.tsv"))
-write_tsv(pooled_rowpct, paste0(pooled_path, "_pct_of_comp.tsv"))
-write_xlsx_pretty(list(counts = pooled_counts,
-                       pct_of_group = pooled_colpct,
-                       pct_of_comp = pooled_rowpct),
-                  paste0(pooled_path, ".xlsx"))
-message("Wrote ", pooled_path, "_*.tsv and .xlsx")
+pooled_long = md %>%
+  count(comp, group, name = "n", .drop = FALSE) %>%
+  group_by(group) %>% mutate(pct_of_group = n / sum(n)) %>%
+  group_by(comp) %>% mutate(pct_of_comp = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(comp = as.character(comp))
+pooled_totals = md %>%
+  count(group, name = "n", .drop = FALSE) %>%
+  mutate(comp = "Total", pct_of_group = 1, pct_of_comp = n / sum(n))
+pooled = bind_rows(pooled_long, pooled_totals) %>%
+  pivot_wider(names_from = group, values_from = c(n, pct_of_group, pct_of_comp),
+              names_glue = "{group}_{.value}", names_vary = "slowest") %>%
+  left_join(bind_rows(pooled_long, pooled_totals) %>%
+              group_by(comp) %>% summarise(Total_n = sum(n)),
+            by = "comp")
+write_table(pooled %>% rename(!!comp_var := comp), "pooled")
 
 
 ################## Table 2: per-sample proportions ###################
@@ -234,8 +238,7 @@ per_sample = md %>%
   left_join(unit_sizes, by = c("sample", "group")) %>%
   mutate(prop = n / total) %>%
   arrange(group, sample, comp)
-write_table(per_sample %>% rename(!!sample_var := sample, !!group_var := group, !!comp_var := comp),
-            "per_sample")
+# Written after the statistics, once the transformed proportions exist.
 
 
 ################## Table 3: pooled enrichment ###################
@@ -247,7 +250,7 @@ enrich = md %>%
   group_by(comp) %>% mutate(comp_total = sum(observed)) %>%
   group_by(group) %>% mutate(group_total = sum(observed)) %>%
   ungroup() %>%
-  mutate(expected = comp_total * group_total / n_total,
+  mutate(expected = as.numeric(comp_total) * group_total / n_total,  # integer product overflows past ~46k x 46k
          log2_enrichment = log2(observed / expected))
 write_table(enrich %>% rename(!!comp_var := comp, !!group_var := group), "enrichment")
 
@@ -261,6 +264,22 @@ unit_info = unit_sizes %>%
   mutate(unit = paste(sample, group, sep = "__")) %>%
   slice(match(colnames(props$TransformedProps), unit))
 stopifnot(identical(unit_info$unit, colnames(props$TransformedProps)))
+
+# The per-sample table carries the exact values limma fits (transformed_prop):
+# one limma "gene" per comp level, one column per sample x group, design on
+# group, block on sample. The logit transform adds 0.5 to every count, so
+# transformed_prop is not exactly logit(prop).
+tp = props$TransformedProps
+per_sample = per_sample %>%
+  mutate(unit = paste(sample, group, sep = "__"), comp_chr = as.character(comp)) %>%
+  left_join(tibble(unit = rep(colnames(tp), each = nrow(tp)),
+                   comp_chr = rep(rownames(tp), times = ncol(tp)),
+                   transformed_prop = as.vector(tp)),
+            by = c("unit", "comp_chr")) %>%
+  select(-unit, -comp_chr)
+stopifnot(!anyNA(per_sample$transformed_prop))
+write_table(per_sample %>% rename(!!sample_var := sample, !!group_var := group, !!comp_var := comp),
+            "per_sample")
 
 # Syntactic names for the design so makeContrasts() accepts levels like
 # "Tumor core"; the original labels go back into the output table.
