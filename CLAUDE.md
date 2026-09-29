@@ -40,7 +40,7 @@ Plot scripts default to `--reduction umap`, so pass `--reduction tsne` when test
 - Options block between `##### Options #####` and `#####` banners; unpack `opts$x` into plain locals; validate before the (slow) object load; `print(opts)` under a `"\nArguments:"` message
 - Load the analysis packages *after* argument parsing: `pacman::p_load(nvutils, sct2, Seurat, scCustomize, tidyverse)`
 - Read objects with `ReadSeurat()` / write with `WriteSeurat()` — never `readRDS`/`qs2::qs_read` directly; both infer format from the extension so every script accepts `.rds` and `.qs2`
-- `--seurat` is the input-object flag name
+- `--seurat` is the input-object flag name. Exception: `seurat_composition.R` takes `--input`, because it also reads a metadata data.frame (`.rds`/`.qs2`) or a `.tsv`; it reads `.rds`/`.qs2` directly and branches on class, since `ReadSeurat()` stops on a non-Seurat object
 - Long options only — no short flags
 - Plot scripts take `--outdir` (default `plots`) and, when they write a single PNG, `--outputfile` (default `""` meaning derive; a filename only, no directory — reject a value containing `/`). The PNG goes to `file.path(outdir, outputfile)`; derived filenames start with `toupper(reduction)`. `ggsave(..., height = height, width = width, bg = "white")`
 - `dir.create(outdir, ...)` goes after every validation `stop()` so a failed run leaves no empty directory behind
