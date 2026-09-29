@@ -1,3 +1,9 @@
+# sct2 0.5.1
+
+- Add seurat_composition.R for sample-level composition analysis
+- Correct enrichment overflow and simplify composition outputs
+- Harden seurat_composition.R input checks and edge cases
+
 # sct2 0.5.0
 
 - Unify the output-path options across all four plotting scripts. Each takes `--outdir`, default `plots`, and writes directly into it rather than appending a `plots` component. The three scripts that write a single PNG take `--outputfile`, default `""` meaning derive; it is a filename only and a value containing `/` is rejected. `seurat_dimplot_colorby.R` has no `--outputfile` because it writes one PNG per `--colorby` column
