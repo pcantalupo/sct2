@@ -16,7 +16,7 @@ pdf(NULL)
 ##################### Options ########################
 option_list <- list(
   make_option("--input", default = "", type = "character",
-              help = "Seurat object (.rds or .qs2), a metadata data.frame saved as .rds or .qs2 (e.g. from seurat_save_metadata.R), or a metadata .tsv [required]"),
+              help = "Seurat object (.rds or .qs2), a metadata data.frame saved as .rds or .qs2 (e.g. from seurat_save_metadata.R), or a metadata .tsv/.tsv.gz [required]"),
   make_option("--group_var", default = "", type = "character",
               help = "Metadata column whose levels are compared, e.g. tissue_type [required]"),
   make_option("--comp_var", default = "celltype", type = "character",
@@ -48,7 +48,7 @@ resultsdir = opts$resultsdir
 
 if (inputfile == "" || !file.exists(inputfile)) {
   print_help(opt_parser)
-  stop("--input must be an existing .rds, .qs2 or .tsv file")
+  stop("--input must be an existing .rds, .qs2, .tsv or .tsv.gz file")
 }
 input_ext = tolower(tools::file_ext(sub("\\.gz$", "", inputfile, ignore.case = TRUE)))
 if (!input_ext %in% c("rds", "qs2", "tsv")) {
@@ -61,11 +61,24 @@ if (group_var == "") {
 if (length(unique(c(group_var, comp_var, sample_var))) < 3) {
   stop("--group_var, --comp_var and --sample_var must be three different columns")
 }
+# Output tables name their columns after these three, so a metadata column
+# with one of the script's own column names would collide.
+reserved = c("n", "total", "prop", "transformed_prop", "observed", "expected",
+             "comp_total", "group_total", "log2_enrichment", "contrast", "numerator",
+             "denominator", "mean_prop_numerator", "mean_prop_denominator", "prop_ratio",
+             "estimate", "t", "p_value", "fdr", "model", "transform", "Total_n")
+clash = intersect(c(group_var, comp_var, sample_var), reserved)
+if (length(clash) > 0) {
+  stop("Column name(s) clash with output column names: ", paste(clash, collapse = ", "),
+       ". Rename the column(s) in the metadata")
+}
 if (!transform %in% c("logit", "asin")) {
   stop("--transform must be logit or asin")
 }
-if (min_cells < 0) {
-  stop("--min_cells must be 0 or more")
+# optparse returns the raw string, with only a warning, when an integer option
+# gets a non-number.
+if (!is.numeric(min_cells) || is.na(min_cells) || min_cells < 0) {
+  stop("--min_cells must be a whole number, 0 or more")
 }
 
 group_levels = trimws(strsplit(opts$levels, ",", fixed = TRUE)[[1]])
@@ -143,17 +156,23 @@ if (n_na > 0) {
   md = md[complete.cases(md), ]
 }
 
+# Quote values in messages so stray spaces in the data are visible.
+quoted = function(x) {
+  paste0('"', x, '"', collapse = ", ")
+}
+
 data_group_levels = level_order(md$group)
 if (length(group_levels) == 0) {
   group_levels = data_group_levels
 } else {
   not_in_levels = setdiff(data_group_levels, group_levels)
   if (length(not_in_levels) > 0) {
-    stop(group_var, " value(s) not in --levels: ", paste(not_in_levels, collapse = ", "))
+    stop(group_var, " value(s) not in --levels: ", quoted(not_in_levels))
   }
   not_in_data = setdiff(group_levels, data_group_levels)
   if (length(not_in_data) > 0) {
-    stop("--levels value(s) not found in ", group_var, ": ", paste(not_in_data, collapse = ", "))
+    stop("--levels value(s) not found in ", group_var, ": ", quoted(not_in_data),
+         ". Values in the data: ", quoted(data_group_levels))
   }
 }
 if (length(group_levels) < 2) {
@@ -178,12 +197,27 @@ if (min_cells > 0) {
     print(as.data.frame(dropped))
     md = md %>% anti_join(dropped, by = c("sample", "group"))
     unit_sizes = unit_sizes %>% filter(total >= min_cells)
+    # A comp level whose cells were all in dropped combinations would otherwise
+    # stay as an all-zero row in every table and in the limma fit.
+    lost_levels = setdiff(levels(md$comp), unique(as.character(md$comp)))
+    if (length(lost_levels) > 0) {
+      message("Removing ", comp_var, " level(s) with no cells left: ", quoted(lost_levels))
+      md = md %>% mutate(comp = droplevels(comp))
+    }
   }
+}
+if (nlevels(md$comp) < 2) {
+  stop(comp_var, " needs at least 2 levels; found: ", quoted(levels(md$comp)))
 }
 
 units_per_group = unit_sizes %>% count(group, name = "n_samples")
 message("\n", sample_var, "s per ", group_var, ":")
 print(as.data.frame(units_per_group))
+single_groups = as.character(units_per_group$group[units_per_group$n_samples == 1])
+if (length(single_groups) > 0) {
+  message("WARNING: only one ", sample_var, " in ", group_var, " level(s) ", quoted(single_groups),
+          ". Contrasts with these levels rest on one sample; interpret with care")
+}
 empty_groups = setdiff(group_levels, as.character(units_per_group$group))
 if (length(empty_groups) > 0) {
   stop("No samples left in ", group_var, " level(s): ", paste(empty_groups, collapse = ", "),
@@ -258,6 +292,12 @@ write_table(enrich %>% rename(!!comp_var := comp, !!group_var := group), "enrich
 ################## Table 4: propeller statistics ###################
 message("\nStatistics: ", transform, " transform, limma")
 md = md %>% mutate(unit = paste(sample, group, sep = "__"))
+# The key must be one-to-one with sample x group; a name containing "__" could
+# make two combinations share a key.
+if (n_distinct(md$unit) != nrow(unit_sizes)) {
+  stop(sample_var, " x ", group_var, " keys collide; a ", sample_var, " or ", group_var,
+       " value contains \"__\"")
+}
 props = getTransformedProps(clusters = md$comp, sample = md$unit, transform = transform)
 
 unit_info = unit_sizes %>%
@@ -380,13 +420,14 @@ save_plot(p, "per_sample_boxplot",
           height = 1 + ceiling(n_comp / ncol_box) * 2.2)
 
 # Heatmap of pooled log2 enrichment; -Inf (no cells) drawn as NA.
-limit = max(abs(enrich$log2_enrichment[is.finite(enrich$log2_enrichment)]))
+# The 0.1 floor keeps the color scale valid when every value is 0 or non-finite.
+limit = max(c(0.1, abs(enrich$log2_enrichment[is.finite(enrich$log2_enrichment)])))
 p = enrich %>%
   mutate(log2_enrichment = if_else(is.finite(log2_enrichment), log2_enrichment, NA_real_),
          comp = fct_rev(comp)) %>%
   ggplot(aes(x = group, y = comp, fill = log2_enrichment)) +
   geom_tile(color = "white") +
-  geom_text(aes(label = round(log2_enrichment, 1)), size = 3) +
+  geom_text(aes(label = round(log2_enrichment, 1)), size = 3, na.rm = TRUE) +
   scale_fill_gradient2(low = "dodgerblue", mid = "white", high = "indianred",
                        limits = c(-limit, limit), na.value = "grey80",
                        name = "log2(obs/exp)") +

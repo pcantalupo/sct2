@@ -99,43 +99,6 @@ seurat_strip_scaledata.R --seurat object.qs2 --outfile object_slim.qs2    # writ
 
 Without `--outfile`, the input is overwritten in place; `--force` overwrites an existing `--outfile`. Because format is inferred from the extension, `--outfile` can also convert between `.rds` and `.qs2`. Removes all `scale.data*` layers from v5 assays and clears the `@scale.data` slot of v3 assays.
 
-### Analysis
-
-**seurat_composition.R** — how the composition of one metadata column (`--comp_var`, default `celltype`) changes across the levels of another (`--group_var`), with statistics at the sample level
-
-```bash
-seurat_composition.R --input metadata.qs2 --group_var tissue_type --levels Tumor,Interface,Lung
-seurat_composition.R --input object.qs2 --group_var tissue_type --comp_var celltype --sample_var patient --min_cells 50
-```
-
-`--input` takes a Seurat object (`.rds`/`.qs2`), a metadata data.frame from `seurat_save_metadata.R` (`.rds`/`.qs2`), or a metadata `.tsv`/`.tsv.gz`. The object's class, not the extension, decides how an `.rds`/`.qs2` is read. The metadata file is much faster to load than a full Seurat object.
-
-| Option | Default | Notes |
-|---|---|---|
-| `--group_var` | required | Column whose levels are compared |
-| `--comp_var` | `celltype` | Column whose composition is measured |
-| `--sample_var` | `patient` | Unit of replication; read as character |
-| `--levels` | factor levels, else natural sort | Comma-separated order of `--group_var` levels. Every value must be listed, and every listed level must occur |
-| `--min_cells` | `0` | Drop sample x group combinations with fewer cells; dropped combinations are logged |
-| `--transform` | `logit` | `logit` or `asin` (arcsine square root) |
-| `--outdir` | `plots` | PNG directory |
-| `--resultsdir` | `results` | TSV and XLSX directory |
-
-Statistics use the propeller method from `speckle` (Bioconductor): `speckle::getTransformedProps()` transforms each sample's proportions, then limma tests every pairwise contrast of `--group_var` levels in `--levels` order (earlier level is the numerator). When a sample contributes cells to more than one group level, the fit uses `limma::duplicateCorrelation()` with the sample as the block; the log states which path ran. No test is run on pooled cell counts.
-
-All files are named `composition_<group_var>_<comp_var>_*`, with characters outside `A-Za-z0-9._-` replaced by `_`.
-
-| Output | Contents |
-|---|---|
-| `_pooled.tsv/.xlsx` | One row per comp level plus a `Total` row. Per group: `<group>_n`, `<group>_pct_of_group` (share of the group's cells) and `<group>_pct_of_comp` (share of the comp level's cells); `Total_n` is the comp level size |
-| `_per_sample.tsv/.xlsx` | One row per sample x group x comp level: `n`, `total`, `prop`, and `transformed_prop`, the value limma fits. Absent comp levels are 0. The logit transform adds 0.5 to every count first, so `transformed_prop` is not exactly `logit(prop)` |
-| `_enrichment.tsv/.xlsx` | Pooled log2(observed / expected). Descriptive only |
-| `_stats.tsv/.xlsx` | One row per contrast x comp level: mean proportions, `prop_ratio`, `estimate` (difference on the transformed scale), `t`, `p_value`, `fdr` (BH within contrast), `model` |
-| `_pooled_stackedbar.png` | Pooled composition per group |
-| `_per_sample_stackedbar.png` | Composition per sample, faceted by group |
-| `_per_sample_boxplot.png` | Sample-level proportions by group, one panel per comp level, points of one sample joined |
-| `_enrichment_heatmap.png` | Pooled log2 enrichment; grey where a comp level has no cells in a group |
-
 ### Plotting
 
 All four plotting scripts share these options (pass the `--help` for more info):
@@ -193,6 +156,43 @@ seurat_dotplot.R --seurat object.qs2 --markers markers.rds --idents RNA_snn_res.
 ```
 
 `--markers` is a `FindAllMarkers()`-style RDS (`cluster`, `gene`, `avg_log2FC` columns). Set the idents with `--idents` and the number of genes per cluster with `--n_top_genes`. Filename: `dotplot_top<n_top_genes>_<idents>.png`.
+
+### Analysis
+
+**seurat_composition.R** — test how the composition of one metadata column (`--comp_var`, e.g. celltype) changes across the levels of another (`--group_var`, e.g. tissue_type), using samples as replicates
+
+```bash
+seurat_composition.R --input metadata.qs2 --group_var tissue_type --levels Tumor,Interface,Lung
+seurat_composition.R --input object.qs2 --group_var tissue_type --sample_var patient --min_cells 50
+```
+
+`--input` is a Seurat object, a metadata data.frame from `seurat_save_metadata.R` (both `.rds` or `.qs2`), or a metadata `.tsv`/`.tsv.gz`. The metadata file loads much faster than the full object. Cells with NA in any of the three columns are dropped.
+
+| Option | Default | Notes |
+|---|---|---|
+| `--group_var` | required | Column whose levels are compared |
+| `--comp_var` | `celltype` | Column whose composition is measured |
+| `--sample_var` | `patient` | Unit of replication |
+| `--levels` | factor levels, else natural sort | Comma-separated order of `--group_var` levels; must list exactly the levels in the data |
+| `--min_cells` | `0` | Drop sample x group combinations with fewer cells (logged). Dropped cells are left out of every output |
+| `--transform` | `logit` | `logit` or `asin` (arcsine square root) |
+| `--outdir` | `plots` | PNG directory |
+| `--resultsdir` | `results` | TSV and XLSX directory |
+
+Statistics follow the propeller method from the Bioconductor package `speckle`: each sample's proportions are transformed, then limma tests every pair of `--group_var` levels, earlier level in `--levels` as the numerator. When a sample appears in more than one group, the fit blocks on sample with `limma::duplicateCorrelation()`, as the speckle vignette recommends for repeated measures. The log says which fit was used, and warns when a group has only one sample. Pooled cell counts are never tested. The values limma fits are saved in the `transformed_prop` column of the `_per_sample` table.
+
+Output files are named `composition_<group_var>_<comp_var>_*`; characters other than `A-Za-z0-9._-` become `_`.
+
+| Output | Contents |
+|---|---|
+| `_pooled.tsv/.xlsx` | Cells pooled across samples. One row per comp level plus a `Total` row. For each group: `<group>_n`, `<group>_pct_of_group` (share of the group's cells) and `<group>_pct_of_comp` (share of the comp level's cells). `Total_n` is the comp level's cell count |
+| `_per_sample.tsv/.xlsx` | One row per sample x group x comp level: `n`, `total`, `prop`, and `transformed_prop`, the value limma fits. Zero counts are included. Logit adds 0.5 to each count first, so `transformed_prop` is not exactly `logit(prop)` |
+| `_enrichment.tsv/.xlsx` | Pooled `observed`, `expected` (row total x column total / grand total) and `log2_enrichment`, which is log2 of Ro/e. Descriptive only |
+| `_stats.tsv/.xlsx` | One row per contrast x comp level: mean per-sample proportion in each group, `prop_ratio` (their ratio; `Inf` or `0` when one mean is 0), `estimate` (difference on the transformed scale; natural-log odds ratio for logit), `t`, `p_value`, `fdr` (BH within each contrast), `model`, `transform` |
+| `_pooled_stackedbar.png` | Pooled composition per group |
+| `_per_sample_stackedbar.png` | Composition per sample, faceted by group |
+| `_per_sample_boxplot.png` | Per-sample proportions by group, one panel per comp level; lines join a sample's points |
+| `_enrichment_heatmap.png` | `log2_enrichment`; grey where a comp level has no cells in a group |
 
 ## Functions
 
