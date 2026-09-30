@@ -176,7 +176,7 @@ seurat_composition.R --input metadata.qs2 --group_var tissue_type --levels Tumor
 seurat_composition.R --input object.qs2 --group_var tissue_type --sample_var patient --min_cells 50
 ```
 
-`--input` is a Seurat object, a metadata data.frame from `seurat_save_metadata.R` (both `.rds` or `.qs2`), or a metadata `.tsv`/`.tsv.gz`. The metadata file loads much faster than the full object. Cells with NA in any of the three columns are dropped.
+`--input` is a Seurat object, a metadata data.frame from `seurat_save_metadata.R` (both `.rds` or `.qs2`), or a metadata `.tsv`/`.tsv.gz`. The metadata file loads much faster than the full object. Cells with NA in any of the three columns are dropped. Samples and comp levels keep their factor order; otherwise they are naturally sorted (`P2` before `P10`).
 
 | Option | Default | Notes |
 |---|---|---|
@@ -201,6 +201,7 @@ Output files are named `composition_<group_var>_<comp_var>_*`; characters other 
 | `_stats.tsv/.xlsx` | One row per contrast x comp level: mean per-sample proportion in each group, `prop_ratio` (their ratio; `Inf` or `0` when one mean is 0), `estimate` (difference on the transformed scale; natural-log odds ratio for logit), `t`, `p_value`, `fdr` (BH within each contrast), `model`, `transform` |
 | `_pooled_stackedbar.png` | Pooled composition per group |
 | `_per_sample_stackedbar.png` | Composition per sample, faceted by group |
+| `_per_sample_stackedbar_by_sample.png` | Same bars faceted by sample, so a sample's groups sit side by side |
 | `_per_sample_boxplot.png` | Per-sample proportions by group, one panel per comp level; lines join a sample's points |
 | `_enrichment_heatmap.png` | `log2_enrichment`; grey where a comp level has no cells in a group |
 

@@ -145,7 +145,7 @@ level_order = function(x) {
   lv
 }
 
-md = tibble(sample = as.character(metadata[[sample_var]]),
+md = tibble(sample = metadata[[sample_var]],
             group  = metadata[[group_var]],
             comp   = metadata[[comp_var]])
 rm(metadata)
@@ -180,7 +180,8 @@ if (length(group_levels) < 2) {
 }
 
 md = md %>%
-  mutate(group = factor(as.character(group), levels = group_levels),
+  mutate(sample = factor(as.character(sample), levels = level_order(sample)),
+         group = factor(as.character(group), levels = group_levels),
          comp  = factor(as.character(comp), levels = level_order(comp)))
 
 message("\n", group_var, " levels: ", paste(group_levels, collapse = ", "))
@@ -401,6 +402,14 @@ p = two_category_barplot(md, category = "sample", subcategory = "comp",
   facet_grid(cols = vars(group), scales = "free_x", space = "free_x") +
   labs(x = sample_var)
 save_plot(p, "per_sample_stackedbar", width = 4 + 0.3 * n_units, height = 7)
+
+# Same bars faceted by sample, so one sample's groups sit side by side
+p = two_category_barplot(md, category = "group", subcategory = "comp",
+                         title = paste(comp_var, "composition per", sample_var, "and", group_var),
+                         legend_title = comp_var) +
+  facet_grid(cols = vars(sample), scales = "free_x", space = "free_x") +
+  labs(x = group_var)
+save_plot(p, "per_sample_stackedbar_by_sample", width = 4 + 0.3 * n_units, height = 7)
 
 # Per-comp-level boxplots of sample-level proportions; points of one sample
 # joined across groups.
