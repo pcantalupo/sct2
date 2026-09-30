@@ -229,7 +229,7 @@ if (nrow(unit_sizes) <= length(group_levels)) {
        ") than ", group_var, " levels (", length(group_levels), ") to estimate variance")
 }
 
-outname = paste0("composition_", slug(group_var), "_", slug(comp_var))
+outname = paste0(slug(group_var), "_vs_", slug(comp_var))
 dir.create(plotsdir, recursive = TRUE, showWarnings = FALSE)
 dir.create(resultsdir, recursive = TRUE, showWarnings = FALSE)
 
@@ -320,7 +320,7 @@ per_sample = per_sample %>%
   select(-unit, -comp_chr)
 stopifnot(!anyNA(per_sample$transformed_prop))
 write_table(per_sample %>% rename(!!sample_var := sample, !!group_var := group, !!comp_var := comp),
-            "per_sample")
+            paste0("per_", slug(sample_var)))
 
 # Syntactic names for the design so makeContrasts() accepts levels like
 # "Tumor core"; the original labels go back into the output table.
@@ -393,7 +393,7 @@ p = two_category_barplot(md, category = "group", subcategory = "comp",
                          title = paste(comp_var, "composition by", group_var),
                          legend_title = comp_var) +
   labs(x = group_var)
-save_plot(p, "pooled_stackedbar", width = 3 + 0.8 * length(group_levels), height = 7)
+save_plot(p, "stackedperc", width = 3 + 0.8 * length(group_levels), height = 7)
 
 # Stacked bar per sample, faceted by group
 p = two_category_barplot(md, category = "sample", subcategory = "comp",
@@ -401,7 +401,7 @@ p = two_category_barplot(md, category = "sample", subcategory = "comp",
                          legend_title = comp_var) +
   facet_grid(cols = vars(group), scales = "free_x", space = "free_x") +
   labs(x = sample_var)
-save_plot(p, "per_sample_stackedbar", width = 4 + 0.3 * n_units, height = 7)
+save_plot(p, paste0("stackedperc_by_", slug(sample_var), "_facet_", slug(group_var)), width = 4 + 0.3 * n_units, height = 7)
 
 # Same bars faceted by sample, so one sample's groups sit side by side
 p = two_category_barplot(md, category = "group", subcategory = "comp",
@@ -409,7 +409,7 @@ p = two_category_barplot(md, category = "group", subcategory = "comp",
                          legend_title = comp_var) +
   facet_grid(cols = vars(sample), scales = "free_x", space = "free_x") +
   labs(x = group_var)
-save_plot(p, "per_sample_stackedbar_by_sample", width = 4 + 0.3 * n_units, height = 7)
+save_plot(p, paste0("stackedperc_by_", slug(sample_var), "_facet_", slug(sample_var)), width = 4 + 0.3 * n_units, height = 7)
 
 # Per-comp-level boxplots of sample-level proportions; points of one sample
 # joined across groups.
@@ -424,7 +424,7 @@ p = ggplot(per_sample, aes(x = group, y = prop)) +
        title = paste(comp_var, "proportion per", sample_var, "by", group_var)) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-save_plot(p, "per_sample_boxplot",
+save_plot(p, paste0("per_", slug(sample_var), "_boxplot"),
           width = max(7, 1 + ncol_box * (0.6 + 0.4 * length(group_levels))),
           height = 1 + ceiling(n_comp / ncol_box) * 2.2)
 

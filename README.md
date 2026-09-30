@@ -189,20 +189,20 @@ seurat_composition.R --input object.qs2 --group_var tissue_type --sample_var pat
 | `--outdir` | `plots` | PNG directory |
 | `--resultsdir` | `results` | TSV and XLSX directory |
 
-Statistics follow the propeller method from the Bioconductor package `speckle`: each sample's proportions are transformed, then limma tests every pair of `--group_var` levels, earlier level in `--levels` as the numerator. When a sample appears in more than one group, the fit blocks on sample with `limma::duplicateCorrelation()`, as the speckle vignette recommends for repeated measures. The log says which fit was used, and warns when a group has only one sample. Pooled cell counts are never tested. The values limma fits are saved in the `transformed_prop` column of the `_per_sample` table.
+Statistics follow the propeller method from the Bioconductor package `speckle`: each sample's proportions are transformed, then limma tests every pair of `--group_var` levels, earlier level in `--levels` as the numerator. When a sample appears in more than one group, the fit blocks on sample with `limma::duplicateCorrelation()`, as the speckle vignette recommends for repeated measures. The log says which fit was used, and warns when a group has only one sample. Pooled cell counts are never tested. The values limma fits are saved in the `transformed_prop` column of the `_per_<sample_var>` table.
 
-Output files are named `composition_<group_var>_<comp_var>_*`; characters other than `A-Za-z0-9._-` become `_`.
+Output files are named `<group_var>_vs_<comp_var>_*`; characters other than `A-Za-z0-9._-` become `_`.
 
 | Output | Contents |
 |---|---|
 | `_pooled.tsv/.xlsx` | Cells pooled across samples. One row per comp level plus a `Total` row. For each group: `<group>_n`, `<group>_pct_of_group` (share of the group's cells) and `<group>_pct_of_comp` (share of the comp level's cells). `Total_n` is the comp level's cell count |
-| `_per_sample.tsv/.xlsx` | One row per sample x group x comp level: `n`, `total`, `prop`, and `transformed_prop`, the value limma fits. Zero counts are included. Logit adds 0.5 to each count first, so `transformed_prop` is not exactly `logit(prop)` |
+| `_per_<sample_var>.tsv/.xlsx` | One row per sample x group x comp level: `n`, `total`, `prop`, and `transformed_prop`, the value limma fits. Zero counts are included. Logit adds 0.5 to each count first, so `transformed_prop` is not exactly `logit(prop)` |
 | `_enrichment.tsv/.xlsx` | Pooled `observed`, `expected` (row total x column total / grand total) and `log2_enrichment`, which is log2 of Ro/e. Descriptive only |
 | `_stats.tsv/.xlsx` | One row per contrast x comp level: mean per-sample proportion in each group, `prop_ratio` (their ratio; `Inf` or `0` when one mean is 0), `estimate` (difference on the transformed scale; natural-log odds ratio for logit), `t`, `p_value`, `fdr` (BH within each contrast), `model`, `transform` |
-| `_pooled_stackedbar.png` | Pooled composition per group |
-| `_per_sample_stackedbar.png` | Composition per sample, faceted by group |
-| `_per_sample_stackedbar_by_sample.png` | Same bars faceted by sample, so a sample's groups sit side by side |
-| `_per_sample_boxplot.png` | Per-sample proportions by group, one panel per comp level; lines join a sample's points |
+| `_stackedperc.png` | Pooled composition per group |
+| `_stackedperc_by_<sample_var>_facet_<group_var>.png` | Composition per sample, faceted by group |
+| `_stackedperc_by_<sample_var>_facet_<sample_var>.png` | Same bars faceted by sample, so a sample's groups sit side by side |
+| `_per_<sample_var>_boxplot.png` | Per-sample proportions by group, one panel per comp level; lines join a sample's points |
 | `_enrichment_heatmap.png` | `log2_enrichment`; grey where a comp level has no cells in a group |
 
 ## Functions
