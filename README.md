@@ -2,6 +2,16 @@
 
 Helper functions for single cell transcriptomics analysis in R.
 
+## Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Command-line scripts](#command-line-scripts)
+  - [Object Info/Manipulation](#object-infomanipulation)
+  - [Plotting](#plotting)
+  - [Analysis](#analysis)
+- [Functions](#functions)
+
 ## Installation
 
 ```r
