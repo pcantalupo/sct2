@@ -1,3 +1,7 @@
+# sct2 0.5.2
+
+- Add composition stacked bar faceted by sample
+
 # sct2 0.5.1
 
 - Add seurat_composition.R for sample-level composition analysis
