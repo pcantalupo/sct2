@@ -1,3 +1,7 @@
+# sct2 0.5.3
+
+- Rename seurat_composition.R output files
+
 # sct2 0.5.2
 
 - Add composition stacked bar faceted by sample
