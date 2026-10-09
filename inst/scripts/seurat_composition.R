@@ -29,6 +29,8 @@ option_list <- list(
               help = "Drop sample x group combinations with fewer cells than this [default: %default]"),
   make_option("--transform", default = "logit", type = "character",
               help = "Transform of the proportions before limma: logit or asin [default: %default]"),
+  make_option("--palette", default = "sccustomize", type = "character",
+              help = "Stacked bar colors for --comp_var: sccustomize (matches DimPlot_scCustom) or ditto [default: %default]"),
   make_option("--outdir", default = "plots", type = "character",
               help = "Output directory for PNGs [default: %default]"),
   make_option("--resultsdir", default = "results", type = "character",
@@ -43,6 +45,7 @@ comp_var   = opts$comp_var
 sample_var = opts$sample_var
 min_cells  = opts$min_cells
 transform  = opts$transform
+palette    = opts$palette
 plotsdir   = opts$outdir
 resultsdir = opts$resultsdir
 
@@ -75,6 +78,9 @@ if (length(clash) > 0) {
 if (!transform %in% c("logit", "asin")) {
   stop("--transform must be logit or asin")
 }
+if (!palette %in% c("sccustomize", "ditto")) {
+  stop("--palette must be sccustomize or ditto")
+}
 # optparse returns the raw string, with only a warning, when an integer option
 # gets a non-number.
 if (!is.numeric(min_cells) || is.na(min_cells) || min_cells < 0) {
@@ -93,7 +99,7 @@ message("")
 #################################################
 
 
-pacman::p_load(nvutils, sct2, speckle, limma, gtools, tidyverse)
+pacman::p_load(nvutils, sct2, scCustomize, speckle, limma, gtools, tidyverse)
 
 
 # Slug a value for use in a file or directory name: labels like CAF/MSC exist.
@@ -144,6 +150,23 @@ level_order = function(x) {
   }
   lv
 }
+
+# Name the stacked bar colors by comp_var level, over the full level set
+# (unused factor levels included) before any level is dropped, so a level keeps
+# its color when another level is absent from the data.
+x = metadata[[comp_var]]
+if (is.factor(x)) {
+  color_levels = levels(x)
+} else {
+  color_levels = gtools::mixedsort(unique(as.character(x[!is.na(x)])))
+}
+if (palette == "sccustomize") {
+  comp_colors = scCustomize_Palette(num_groups = length(color_levels), ggplot_default_colors = FALSE)
+} else {
+  comp_colors = rep(colors_ditto, length.out = length(color_levels))
+}
+names(comp_colors) = color_levels
+rm(x)
 
 md = tibble(sample = metadata[[sample_var]],
             group  = metadata[[group_var]],
@@ -391,14 +414,14 @@ n_units = nrow(unit_sizes)
 # Pooled stacked bar per group
 p = two_category_barplot(md, category = "group", subcategory = "comp",
                          title = paste(comp_var, "composition by", group_var),
-                         legend_title = comp_var) +
+                         legend_title = comp_var, colors = comp_colors) +
   labs(x = group_var)
 save_plot(p, "stackedperc", width = 3 + 0.8 * length(group_levels), height = 7)
 
 # Stacked bar per sample, faceted by group
 p = two_category_barplot(md, category = "sample", subcategory = "comp",
                          title = paste(comp_var, "composition per", sample_var),
-                         legend_title = comp_var) +
+                         legend_title = comp_var, colors = comp_colors) +
   facet_grid(cols = vars(group), scales = "free_x", space = "free_x") +
   labs(x = sample_var)
 save_plot(p, paste0("stackedperc_by_", slug(sample_var), "_facet_", slug(group_var)), width = 4 + 0.3 * n_units, height = 7)
@@ -406,7 +429,7 @@ save_plot(p, paste0("stackedperc_by_", slug(sample_var), "_facet_", slug(group_v
 # Same bars faceted by sample, so one sample's groups sit side by side
 p = two_category_barplot(md, category = "group", subcategory = "comp",
                          title = paste(comp_var, "composition per", sample_var, "and", group_var),
-                         legend_title = comp_var) +
+                         legend_title = comp_var, colors = comp_colors) +
   facet_grid(cols = vars(sample), scales = "free_x", space = "free_x") +
   labs(x = group_var)
 save_plot(p, paste0("stackedperc_by_", slug(sample_var), "_facet_", slug(sample_var)), width = 4 + 0.3 * n_units, height = 7)
