@@ -186,7 +186,7 @@ seurat_composition.R --input object.qs2 --group_var tissue_type --sample_var pat
 | `--levels` | factor levels, else natural sort | Comma-separated order of `--group_var` levels; must list exactly the levels in the data |
 | `--min_cells` | `0` | Drop sample x group combinations with fewer cells (logged). Dropped cells are left out of every output |
 | `--transform` | `logit` | `logit` or `asin` (arcsine square root) |
-| `--palette` | `sccustomize` | Stacked bar colors for `--comp_var`: `sccustomize` (same colors as `DimPlot_scCustom` on the full object) or `ditto` (`nvutils::colors_ditto`). Colors are assigned by level name over every level of `--comp_var`, unused factor levels included, so a level keeps its color when other levels are absent |
+| `--palette` | `ditto` | Stacked bar colors for `--comp_var`: `ditto` (`nvutils::colors_ditto`, 40 colors), `polychrome` (`nvutils::colors_polychrome`, 25 colors) or `sccustomize` (same colors as `DimPlot_scCustom` on the full object). `ditto` and `polychrome` repeat when there are more levels than colors. Colors are assigned by level name over every level of `--comp_var`, unused factor levels included, so a level keeps its color when other levels are absent |
 | `--outdir` | `plots` | PNG directory |
 | `--resultsdir` | `results` | TSV and XLSX directory |
 

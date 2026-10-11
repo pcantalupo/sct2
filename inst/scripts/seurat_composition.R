@@ -29,8 +29,8 @@ option_list <- list(
               help = "Drop sample x group combinations with fewer cells than this [default: %default]"),
   make_option("--transform", default = "logit", type = "character",
               help = "Transform of the proportions before limma: logit or asin [default: %default]"),
-  make_option("--palette", default = "sccustomize", type = "character",
-              help = "Stacked bar colors for --comp_var: sccustomize (matches DimPlot_scCustom) or ditto [default: %default]"),
+  make_option("--palette", default = "ditto", type = "character",
+              help = "Stacked bar colors for --comp_var: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (matches DimPlot_scCustom) [default: %default]"),
   make_option("--outdir", default = "plots", type = "character",
               help = "Output directory for PNGs [default: %default]"),
   make_option("--resultsdir", default = "results", type = "character",
@@ -78,8 +78,8 @@ if (length(clash) > 0) {
 if (!transform %in% c("logit", "asin")) {
   stop("--transform must be logit or asin")
 }
-if (!palette %in% c("sccustomize", "ditto")) {
-  stop("--palette must be sccustomize or ditto")
+if (!palette %in% c("ditto", "polychrome", "sccustomize")) {
+  stop("--palette must be ditto, polychrome or sccustomize")
 }
 # optparse returns the raw string, with only a warning, when an integer option
 # gets a non-number.
@@ -162,6 +162,8 @@ if (is.factor(x)) {
 }
 if (palette == "sccustomize") {
   comp_colors = scCustomize_Palette(num_groups = length(color_levels), ggplot_default_colors = FALSE)
+} else if (palette == "polychrome") {
+  comp_colors = rep(colors_polychrome, length.out = length(color_levels))
 } else {
   comp_colors = rep(colors_ditto, length.out = length(color_levels))
 }
