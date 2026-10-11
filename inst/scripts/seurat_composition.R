@@ -31,6 +31,8 @@ option_list <- list(
               help = "Transform of the proportions before limma: logit or asin [default: %default]"),
   make_option("--palette", default = "ditto", type = "character",
               help = "Stacked bar colors for --comp_var: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (matches DimPlot_scCustom) [default: %default]"),
+  make_option("--match", default = "position", type = "character",
+              help = "How --palette colors are assigned to --comp_var levels: position (nth level in the plot gets the nth color) or name (each level keeps one color across runs and subsets) [default: %default]"),
   make_option("--outdir", default = "plots", type = "character",
               help = "Output directory for PNGs [default: %default]"),
   make_option("--resultsdir", default = "results", type = "character",
@@ -46,6 +48,7 @@ sample_var = opts$sample_var
 min_cells  = opts$min_cells
 transform  = opts$transform
 palette    = opts$palette
+match      = opts$match
 plotsdir   = opts$outdir
 resultsdir = opts$resultsdir
 
@@ -80,6 +83,9 @@ if (!transform %in% c("logit", "asin")) {
 }
 if (!palette %in% c("ditto", "polychrome", "sccustomize")) {
   stop("--palette must be ditto, polychrome or sccustomize")
+}
+if (!match %in% c("position", "name")) {
+  stop("--match must be position or name")
 }
 # optparse returns the raw string, with only a warning, when an integer option
 # gets a non-number.
@@ -151,23 +157,15 @@ level_order = function(x) {
   lv
 }
 
-# Name the stacked bar colors by comp_var level, over the full level set
-# (unused factor levels included) before any level is dropped, so a level keeps
+# Full comp_var level set (unused factor levels included), captured before any
+# level is dropped. --match name assigns colors over this set, so a level keeps
 # its color when another level is absent from the data.
 x = metadata[[comp_var]]
 if (is.factor(x)) {
-  color_levels = levels(x)
+  all_comp_levels = levels(x)
 } else {
-  color_levels = gtools::mixedsort(unique(as.character(x[!is.na(x)])))
+  all_comp_levels = gtools::mixedsort(unique(as.character(x[!is.na(x)])))
 }
-if (palette == "sccustomize") {
-  comp_colors = scCustomize_Palette(num_groups = length(color_levels), ggplot_default_colors = FALSE)
-} else if (palette == "polychrome") {
-  comp_colors = rep(colors_polychrome, length.out = length(color_levels))
-} else {
-  comp_colors = rep(colors_ditto, length.out = length(color_levels))
-}
-names(comp_colors) = color_levels
 rm(x)
 
 md = tibble(sample = metadata[[sample_var]],
@@ -412,6 +410,25 @@ save_plot = function(p, name, width, height) {
 
 n_comp = nlevels(md$comp)
 n_units = nrow(unit_sizes)
+
+# Stacked bar colors. position: an unnamed palette sized to the levels in the
+# plot, so the nth level gets the nth color. name: a palette sized to the full
+# level set and named by level.
+if (match == "name") {
+  color_levels = all_comp_levels
+} else {
+  color_levels = levels(md$comp)
+}
+if (palette == "sccustomize") {
+  comp_colors = scCustomize_Palette(num_groups = length(color_levels), ggplot_default_colors = FALSE)
+} else if (palette == "polychrome") {
+  comp_colors = rep(colors_polychrome, length.out = length(color_levels))
+} else {
+  comp_colors = rep(colors_ditto, length.out = length(color_levels))
+}
+if (match == "name") {
+  names(comp_colors) = color_levels
+}
 
 # Pooled stacked bar per group
 p = two_category_barplot(md, category = "group", subcategory = "comp",
