@@ -43,6 +43,7 @@ Plot scripts default to `--reduction umap`, so pass `--reduction tsne` when test
 - `--seurat` is the input-object flag name. Exception: `seurat_composition.R` takes `--input`, because it also reads a metadata data.frame (`.rds`/`.qs2`) or a `.tsv`; it reads `.rds`/`.qs2` directly and branches on class, since `ReadSeurat()` stops on a non-Seurat object
 - Long options only — no short flags
 - Plot scripts take `--outdir` (default `plots`) and, when they write a single PNG, `--outputfile` (default `""` meaning derive; a filename only, no directory — reject a value containing `/`). The PNG goes to `file.path(outdir, outputfile)`; derived filenames start with `toupper(reduction)`. `ggsave(..., height = height, width = width, bg = "white")`
+- Scripts that write tables (TSV/XLSX) or more than one kind of output take a single `--outdir` as an output root (default `.`), not one flag per output kind. Set `plotsdir = file.path(outdir, "plots")`, `resultsdir = file.path(outdir, "results")` (and `rdsdir = file.path(outdir, "rds")` if needed). Same layout as `seurat_composition.R`, `compareWGCNA/wgcna_run.R` and `clusterprofiler_enrichment.R`
 - `dir.create(outdir, ...)` goes after every validation `stop()` so a failed run leaves no empty directory behind
 - End with `cat("\n\n")` then `devtools::session_info()`
 - `chmod 755` new scripts, and add a section to the README's "Command-line scripts" list
