@@ -1,3 +1,7 @@
+# sct2 0.5.5
+
+- Make seurat_composition.R --outdir a root for plots and results
+
 # sct2 0.5.4
 
 - Add seurat_composition.R --match option, default position
