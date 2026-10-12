@@ -1,3 +1,9 @@
+# sct2 0.5.4
+
+- Add seurat_composition.R --match option, default position
+- Default seurat_composition.R --palette to ditto and add polychrome
+- Name seurat_composition.R stacked bar colors by comp_var level
+
 # sct2 0.5.3
 
 - Rename seurat_composition.R output files
