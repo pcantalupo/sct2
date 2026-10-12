@@ -33,10 +33,8 @@ option_list <- list(
               help = "Stacked bar colors for --comp_var: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (matches DimPlot_scCustom) [default: %default]"),
   make_option("--match", default = "position", type = "character",
               help = "How --palette colors are assigned to --comp_var levels: position (nth level in the plot gets the nth color) or name (each level keeps one color across runs and subsets) [default: %default]"),
-  make_option("--outdir", default = "plots", type = "character",
-              help = "Output directory for PNGs [default: %default]"),
-  make_option("--resultsdir", default = "results", type = "character",
-              help = "Output directory for TSV and XLSX tables [default: %default]")
+  make_option("--outdir", default = ".", type = "character",
+              help = "Output root directory: PNGs go to <outdir>/plots, TSV and XLSX tables to <outdir>/results [default: %default]")
 )
 opt_parser <- OptionParser(option_list = option_list)
 opts <- parse_args(opt_parser)
@@ -49,8 +47,9 @@ min_cells  = opts$min_cells
 transform  = opts$transform
 palette    = opts$palette
 match      = opts$match
-plotsdir   = opts$outdir
-resultsdir = opts$resultsdir
+outdir     = opts$outdir
+plotsdir   = file.path(outdir, "plots")
+resultsdir = file.path(outdir, "results")
 
 if (inputfile == "" || !file.exists(inputfile)) {
   print_help(opt_parser)

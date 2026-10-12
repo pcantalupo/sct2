@@ -188,8 +188,7 @@ seurat_composition.R --input object.qs2 --group_var tissue_type --sample_var pat
 | `--transform` | `logit` | `logit` or `asin` (arcsine square root) |
 | `--palette` | `ditto` | Stacked bar colors for `--comp_var`: `ditto` (`nvutils::colors_ditto`, 40 colors), `polychrome` (`nvutils::colors_polychrome`, 25 colors) or `sccustomize` (same colors as `DimPlot_scCustom` on the full object). `ditto` and `polychrome` repeat when there are more levels than colors |
 | `--match` | `position` | How `--palette` colors are assigned to `--comp_var` levels. `position`: the nth level in the plot gets the nth color, so a level absent from the data shifts the colors of the levels after it. `name`: colors are assigned by level name over every level of `--comp_var`, unused factor levels included, so a level keeps its color when other levels are absent |
-| `--outdir` | `plots` | PNG directory |
-| `--resultsdir` | `results` | TSV and XLSX directory |
+| `--outdir` | `.` | Output root directory: PNGs go to `<outdir>/plots`, TSV and XLSX tables to `<outdir>/results` |
 
 Statistics follow the propeller method from the Bioconductor package `speckle`: each sample's proportions are transformed, then limma tests every pair of `--group_var` levels, earlier level in `--levels` as the numerator. When a sample appears in more than one group, the fit blocks on sample with `limma::duplicateCorrelation()`, as the speckle vignette recommends for repeated measures. The log says which fit was used, and warns when a group has only one sample. Pooled cell counts are never tested. The values limma fits are saved in the `transformed_prop` column of the `_per_<sample_var>` table.
 
