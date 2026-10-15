@@ -93,7 +93,7 @@ md <- seurat[[]]
 
 # One color per celltype (user's standing discrete-color convention)
 labels         <- sort(unique(as.character(md_full[[celltype]])))
-celltypecolors <- set_names(colors_polychrome[seq_along(labels)], labels)
+celltypecolors <- set_names(rep(colors_polychrome, length.out = length(labels)), labels)
 
 # Expand celltype colors to the celltype_cluster values. The mapping is taken
 # directly from the metadata (every celltype_cluster value has exactly one
