@@ -1,3 +1,7 @@
+# sct2 0.5.6
+
+- Repeat celltype colors past 25 in seurat_dimplot_celltype-cluster.R
+
 # sct2 0.5.5
 
 - Make seurat_composition.R --outdir a root for plots and results
