@@ -1,3 +1,9 @@
+# sct2 0.6.0
+
+- Add seurat_dimplot_celltype-cluster.R --palette option, default ditto
+- Add seurat_dimplot_splitby-colorby.R --palette option, default ditto
+- Add seurat_dimplot_colorby.R --palette option, default ditto
+
 # sct2 0.5.7
 
 - Order celltypes by factor levels or natural sort in seurat_dimplot_celltype-cluster.R
