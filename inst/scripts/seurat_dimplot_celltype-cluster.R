@@ -92,7 +92,12 @@ md <- seurat[[]]
 
 
 # One color per celltype (user's standing discrete-color convention)
-labels         <- sort(unique(as.character(md_full[[celltype]])))
+x = md_full[[celltype]]
+if (is.factor(x)) {
+  labels = levels(x)
+} else {
+  labels = gtools::mixedsort(unique(as.character(x[!is.na(x)])))
+}
 celltypecolors <- set_names(rep(colors_polychrome, length.out = length(labels)), labels)
 
 # Expand celltype colors to the celltype_cluster values. The mapping is taken
