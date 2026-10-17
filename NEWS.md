@@ -1,3 +1,8 @@
+# sct2 0.6.1
+
+- Add seurat_dimplot_splitby-colorby.R --match option, default position
+- Add seurat_dimplot_colorby.R --match option, default position
+
 # sct2 0.6.0
 
 - Add seurat_dimplot_celltype-cluster.R --palette option, default ditto
