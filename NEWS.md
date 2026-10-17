@@ -1,3 +1,7 @@
+# sct2 0.5.7
+
+- Order celltypes by factor levels or natural sort in seurat_dimplot_celltype-cluster.R
+
 # sct2 0.5.6
 
 - Repeat celltype colors past 25 in seurat_dimplot_celltype-cluster.R
