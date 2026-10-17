@@ -18,6 +18,8 @@ option_list <- list(
               help = "Reduction to use [default: %default]"),
   make_option("--label", default = TRUE, type = "logical",
               help = "Label the colorby groups on the plot [default: %default]"),
+  make_option("--palette", default = "ditto", type = "character",
+              help = "Colors for --colorby: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (DimPlot_scCustom default) [default: %default]"),
   make_option("--label_size", default = 4, type = "double",
               help = "Size of the group labels [default: %default]"),
   make_option("--repel", default = FALSE, type = "logical", action = "store_true",
@@ -36,6 +38,7 @@ opts <- parse_args(opt_parser)
 seuratfile <- opts$seurat
 reduction  <- opts$reduction
 label      <- opts$label
+palette    = opts$palette
 label_size <- opts$label_size
 repel      <- opts$repel
 height     <- opts$height
@@ -52,6 +55,10 @@ colorby <- colorby[nzchar(colorby)]
 if (length(colorby) == 0) {
   print_help(opt_parser)
   stop("--colorby is required")
+}
+
+if (!palette %in% c("ditto", "polychrome", "sccustomize")) {
+  stop("--palette must be ditto, polychrome or sccustomize")
 }
 
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
@@ -88,9 +95,21 @@ for (col in colorby) {
     seurat[[col]] <- factor(col_char, levels = gtools::mixedsort(unique(col_char)))
   }
 
+  # The nth level in the plot gets the nth color. sccustomize passes NULL so
+  # DimPlot_scCustom picks its own palette, as before --palette existed.
+  n_levels = nlevels(droplevels(seurat[[]][, col]))
+  if (palette == "sccustomize") {
+    colors_use = NULL
+  } else if (palette == "polychrome") {
+    colors_use = rep(colors_polychrome, length.out = n_levels)
+  } else {
+    colors_use = rep(colors_ditto, length.out = n_levels)
+  }
+
   message("\nPlotting ", reduction, " colored-by '", col, "'")
   p <- DimPlot_scCustom(seurat, reduction = reduction, group.by = col,
-                        label = label, label.size = label_size, repel = repel) +
+                        label = label, label.size = label_size, repel = repel,
+                        colors_use = colors_use) +
     labs(title = paste0(toupper(reduction), " colored by ", col))
 
   outputfile <- file.path(outdir, paste0(toupper(reduction), "_colored_by_", col, ".png"))
