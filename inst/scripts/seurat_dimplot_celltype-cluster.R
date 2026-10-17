@@ -15,6 +15,7 @@ option_list <- list(
   make_option("--cluster",  default = "RNA_snn_res.0.8",      type = "character", help = "Metadata column with cluster IDs (combined with celltype for the label) [default: %default]"),
   make_option("--reduction",  default = "umap",      type = "character", help = "Reduction to use [default: %default]"),
   make_option("--repel",    default = FALSE,                  type = "logical",   action = "store_true", help = "Repel the cluster labels [default: %default]"),
+  make_option("--palette",  default = "ditto",                type = "character", help = "Colors for --celltype: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (scCustomize_Palette) [default: %default]"),
   make_option("--downsample", type = "numeric", default = 1,
               help = "Fraction of cells to retain, in (0, 1] or absolute number of cells > 1 [default: %default]"),
   make_option("--seed", type = "integer", default = 1946,
@@ -36,6 +37,7 @@ width      <- opts$width
 outdir     <- opts$outdir
 reduction  <- opts$reduction
 repel      <- opts$repel
+palette    = opts$palette
 
 if (is.null(seuratfile) || seuratfile == "" || !file.exists(seuratfile)) {
   print_help(opt_parser)
@@ -55,6 +57,10 @@ if (opts$downsample <= 0) {
   stop("--downsample must be > 0")
 }
 
+if (!palette %in% c("ditto", "polychrome", "sccustomize")) {
+  stop("--palette must be ditto, polychrome or sccustomize")
+}
+
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 message("\nArguments:")
@@ -70,7 +76,7 @@ print(seurat)
 n_cells <- ncol(seurat)
 
 # Capturing metadata here b/c any celltype that loses all its cells drops out
-# and every celltype after it shifts position in colors_polychrome — the same
+# and every celltype after it shifts position in the palette — the same
 # celltype gets a different color at different --downsample values or seeds.
 md_full <- seurat[[]]
 ValidateMetadataCols(seurat, c(celltype, cluster))
@@ -98,7 +104,14 @@ if (is.factor(x)) {
 } else {
   labels = gtools::mixedsort(unique(as.character(x[!is.na(x)])))
 }
-celltypecolors <- set_names(rep(colors_polychrome, length.out = length(labels)), labels)
+if (palette == "sccustomize") {
+  palette_colors = scCustomize_Palette(num_groups = length(labels), ggplot_default_colors = FALSE)
+} else if (palette == "polychrome") {
+  palette_colors = rep(colors_polychrome, length.out = length(labels))
+} else {
+  palette_colors = rep(colors_ditto, length.out = length(labels))
+}
+celltypecolors <- set_names(palette_colors, labels)
 
 # Expand celltype colors to the celltype_cluster values. The mapping is taken
 # directly from the metadata (every celltype_cluster value has exactly one

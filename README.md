@@ -140,7 +140,7 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --celltype singleR_cluster
 seurat_dimplot_celltype-cluster.R --seurat object.qs2 --downsample 0.1   # plot 10% of cells (or --downsample 2000 to plot 2000 cells)
 ```
 
-Filename: `<REDUCTION>_colored_by_<celltype>_<cluster>.png`. Cell count is noted in the plot subtitle.
+Filename: `<REDUCTION>_colored_by_<celltype>_<cluster>.png`. Cell count is noted in the plot subtitle. `--palette` sets the celltype colors: `ditto` (default, `nvutils::colors_ditto`), `polychrome` (`nvutils::colors_polychrome`, the colors used before `--palette` existed) or `sccustomize` (`scCustomize_Palette`). Colors are assigned by celltype name over the full object, so a celltype keeps its color at any `--downsample` value.
 
 **seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend. `--palette` takes the same values as `seurat_dimplot_colorby.R` (default `ditto`). Filename: `<REDUCTION>_split-<splitby>_color-<colorby>.png`.
 
