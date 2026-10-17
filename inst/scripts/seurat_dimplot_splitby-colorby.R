@@ -19,6 +19,8 @@ option_list <- list(
               help = "Reduction to use [default: %default]"),
   make_option("--label", default = TRUE, type = "logical",
               help = "Label the colorby groups on the UMAP [default: %default]"),
+  make_option("--palette", default = "ditto", type = "character",
+              help = "Colors for --colorby: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (DimPlot_scCustom default) [default: %default]"),
   make_option("--label_size", default = 4, type = "double",
               help = "Size of the cluster labels [default: %default]"),
   make_option("--repel", default = FALSE, type = "logical", action = "store_true",
@@ -41,6 +43,7 @@ splitby    <- opts$splitby
 colorby    <- opts$colorby
 reduction  <- opts$reduction
 label      <- opts$label
+palette    = opts$palette
 label_size <- opts$label_size
 repel      <- opts$repel
 height     <- opts$height
@@ -54,6 +57,10 @@ if (is.null(seuratfile) || seuratfile == "" || !file.exists(seuratfile)) {
 
 if (grepl("/", opts$outputfile, fixed = TRUE)) {
   stop("--outputfile must be a filename, not a path; use --outdir for the directory")
+}
+
+if (!palette %in% c("ditto", "polychrome", "sccustomize")) {
+  stop("--palette must be ditto, polychrome or sccustomize")
 }
 
 if (is.null(opts$outputfile) || opts$outputfile == "") {
@@ -96,10 +103,21 @@ if (!is.factor(seurat[[]][, splitby])) {
   seurat[[splitby]] <- factor(splitby_char, levels = gtools::mixedsort(unique(splitby_char)))
 }
 
+# The nth colorby level gets the nth color. sccustomize passes NULL so
+# DimPlot_scCustom picks its own palette, as before --palette existed.
+n_levels = nlevels(droplevels(seurat[[]][, colorby]))
+if (palette == "sccustomize") {
+  colors_use = NULL
+} else if (palette == "polychrome") {
+  colors_use = rep(colors_polychrome, length.out = n_levels)
+} else {
+  colors_use = rep(colors_ditto, length.out = n_levels)
+}
+
 message("\nPlotting split-by '", splitby, "' colored-by '", colorby, "'")
 p <- DimPlot_scCustom(seurat, reduction = reduction, split.by = splitby,
                       group.by = colorby, label = label, label.size = label_size,
-                      repel = repel)
+                      repel = repel, colors_use = colors_use)
 
 message("Saving to ", file.path(outdir, outputfile))
 ggsave(file.path(outdir, outputfile), plot = p, height = height, width = width, bg = "white")
