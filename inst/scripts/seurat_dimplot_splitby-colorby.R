@@ -21,6 +21,8 @@ option_list <- list(
               help = "Label the colorby groups on the UMAP [default: %default]"),
   make_option("--palette", default = "ditto", type = "character",
               help = "Colors for --colorby: ditto (nvutils::colors_ditto, 40 colors), polychrome (nvutils::colors_polychrome, 25 colors) or sccustomize (DimPlot_scCustom default) [default: %default]"),
+  make_option("--match", default = "position", type = "character",
+              help = "How --palette colors are assigned to --colorby levels: position (nth level in the plot gets the nth color) or name (each factor level keeps one color across runs and subsets) [default: %default]"),
   make_option("--label_size", default = 4, type = "double",
               help = "Size of the cluster labels [default: %default]"),
   make_option("--repel", default = FALSE, type = "logical", action = "store_true",
@@ -44,6 +46,7 @@ colorby    <- opts$colorby
 reduction  <- opts$reduction
 label      <- opts$label
 palette    = opts$palette
+match      = opts$match
 label_size <- opts$label_size
 repel      <- opts$repel
 height     <- opts$height
@@ -61,6 +64,9 @@ if (grepl("/", opts$outputfile, fixed = TRUE)) {
 
 if (!palette %in% c("ditto", "polychrome", "sccustomize")) {
   stop("--palette must be ditto, polychrome or sccustomize")
+}
+if (!match %in% c("position", "name")) {
+  stop("--match must be position or name")
 }
 
 if (is.null(opts$outputfile) || opts$outputfile == "") {
@@ -103,15 +109,29 @@ if (!is.factor(seurat[[]][, splitby])) {
   seurat[[splitby]] <- factor(splitby_char, levels = gtools::mixedsort(unique(splitby_char)))
 }
 
-# The nth colorby level gets the nth color. sccustomize passes NULL so
-# DimPlot_scCustom picks its own palette, as before --palette existed.
-n_levels = nlevels(droplevels(seurat[[]][, colorby]))
-if (palette == "sccustomize") {
-  colors_use = NULL
-} else if (palette == "polychrome") {
-  colors_use = rep(colors_polychrome, length.out = n_levels)
+# position: the nth colorby level gets the nth color. name: colors are
+# assigned over the full factor level set and named by level, so a level keeps
+# its color when another level is absent. sccustomize with position passes
+# NULL so DimPlot_scCustom picks its own palette, as before --palette.
+# With split.by, DimPlot_scCustom names colors_use by every factor level, so
+# position drops unused levels from the column itself.
+if (match == "name") {
+  color_levels = levels(seurat[[]][, colorby])
 } else {
-  colors_use = rep(colors_ditto, length.out = n_levels)
+  seurat[[colorby]] = droplevels(seurat[[]][, colorby])
+  color_levels = levels(seurat[[]][, colorby])
+}
+if (palette == "sccustomize" && match == "position") {
+  colors_use = NULL
+} else if (palette == "sccustomize") {
+  colors_use = scCustomize_Palette(num_groups = length(color_levels), ggplot_default_colors = FALSE)
+} else if (palette == "polychrome") {
+  colors_use = rep(colors_polychrome, length.out = length(color_levels))
+} else {
+  colors_use = rep(colors_ditto, length.out = length(color_levels))
+}
+if (match == "name") {
+  names(colors_use) = color_levels
 }
 
 message("\nPlotting split-by '", splitby, "' colored-by '", colorby, "'")

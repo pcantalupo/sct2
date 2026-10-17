@@ -142,7 +142,7 @@ seurat_dimplot_celltype-cluster.R --seurat object.qs2 --downsample 0.1   # plot 
 
 Filename: `<REDUCTION>_colored_by_<celltype>_<cluster>.png`. Cell count is noted in the plot subtitle. `--palette` sets the celltype colors: `ditto` (default, `nvutils::colors_ditto`), `polychrome` (`nvutils::colors_polychrome`, the colors used before `--palette` existed) or `sccustomize` (`scCustomize_Palette`). Colors are assigned by celltype name over the full object, so a celltype keeps its color at any `--downsample` value.
 
-**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend. `--palette` takes the same values as `seurat_dimplot_colorby.R` (default `ditto`). Filename: `<REDUCTION>_split-<splitby>_color-<colorby>.png`.
+**seurat_dimplot_splitby-colorby.R** — split UMAP DimPlot with one panel per `--splitby` value, colored by `--colorby` (mapped to `group.by`). The colorby column is coerced to a factor so every panel shares one color scale and a single unified legend. `--palette` and `--match` take the same values as `seurat_dimplot_colorby.R` (defaults `ditto` and `position`). With `--match name`, the legend also lists unused factor levels. Filename: `<REDUCTION>_split-<splitby>_color-<colorby>.png`.
 
 ```bash
 seurat_dimplot_splitby-colorby.R --seurat object.qs2 --splitby RNA_snn_res.0.8 --colorby orig.ident
